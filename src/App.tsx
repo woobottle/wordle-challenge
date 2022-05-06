@@ -6,7 +6,7 @@ import { darkTheme, lightTheme } from './assets/styles/theme';
 import GlobalStyles from './assets/styles/GlobalStyles';
 
 function App() {
-  const [theme, setTheme] = useState('light')
+  const [theme, setTheme] = useState('dark')
   const currentTheme = useMemo(() => theme === 'light' ? lightTheme : darkTheme, [theme])
 
   return (
