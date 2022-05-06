@@ -9,16 +9,16 @@ import useRowColumn from './hooks/useRowColumn';
 function App() {
   const [theme, setTheme] = useState('dark')
   const currentTheme = useMemo(() => theme === 'light' ? lightTheme : darkTheme, [theme])
-  const [words, setWords] = useState([[], [], [], [], []]);
-  const { columnUp, columnDown } = useRowColumn()
+  
+  const { columnUp, columnDown, onClick, words, rowUp } = useRowColumn()
   
   return (
     <ThemeProvider theme={{ currentTheme, setTheme }} >
       <GlobalStyles />
       <div className="App">
-        <GNB />
-        <GameBoard />
-        <KeyBoard columnUp={columnUp} columnDown={columnDown}/>
+        {/* <GNB /> */}
+        <GameBoard words={words} />
+        <KeyBoard columnUp={columnUp} columnDown={columnDown} onClick={onClick} rowUp={rowUp} />
       </div>
     </ThemeProvider>
   );

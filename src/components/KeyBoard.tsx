@@ -8,18 +8,21 @@ const thirdLine = ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<']
 interface Props {
   columnUp: () => void;
   columnDown: () => void;
+  onClick: (word: string) => void;
+  rowUp: () => void;
 }
 
-const KeyBoard = ({ columnUp, columnDown }: Props) => {
+const KeyBoard = ({ columnUp, columnDown, onClick, rowUp }: Props) => {
   const clickHandler = (e: React.SyntheticEvent) => {
     if (!(e.target instanceof HTMLButtonElement)) {
       return 
     }
 
     const buttonValue = e.target.dataset['key'];
-    
+    if (!buttonValue) return;
+
     if (buttonValue === 'enter') {
-      console.log('hihi')
+      rowUp()
       return
     }
 
@@ -28,6 +31,7 @@ const KeyBoard = ({ columnUp, columnDown }: Props) => {
       return
     }
 
+    onClick(buttonValue);
     columnUp()
     return
   }

@@ -1,10 +1,15 @@
+import { useMemo } from 'react';
 import styled from 'styled-components';
+interface Props {
+  words: string[][];
+}
 
-const GameBoard = () => {
+const GameBoard = ({ words }: Props) => {
+  const flatWords = useMemo(() => words.flat(), [words])
   return (
     <GameBoardWrapper>
       <InputRow>
-        {Array.from({ length: 30 }, (v, i) => i).map(el => <InputBox key={el}>1</InputBox>)}
+        {flatWords.map(el => <InputBox>{el}</InputBox>)}
       </InputRow>
     </GameBoardWrapper>
   )
