@@ -1,12 +1,39 @@
+import React from 'react';
 import styled from 'styled-components';
 
 const firstLine = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
 const secondLine = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l']
 const thirdLine = ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<']
 
-const KeyBoard = () => {
+interface Props {
+  columnUp: () => void;
+  columnDown: () => void;
+}
+
+const KeyBoard = ({ columnUp, columnDown }: Props) => {
+  const clickHandler = (e: React.SyntheticEvent) => {
+    if (!(e.target instanceof HTMLButtonElement)) {
+      return 
+    }
+
+    const buttonValue = e.target.dataset['key'];
+    
+    if (buttonValue === 'enter') {
+      console.log('hihi')
+      return
+    }
+
+    if (buttonValue === '<') {
+      columnDown()
+      return
+    }
+
+    columnUp()
+    return
+  }
+
   return (
-    <KeyBoardWrapper>
+    <KeyBoardWrapper onClick={clickHandler}>
       <KeyRow>
         {firstLine.map(word => <KeyButton key={word} data-key={word}>{word}</KeyButton>)}
       </KeyRow>

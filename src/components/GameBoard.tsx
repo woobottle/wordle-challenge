@@ -26,8 +26,9 @@ const InputRow = styled.div`
 `
 
 const InputBox = styled.div`
-  border: 1.5px solid black;
-  margin: 2px;
+  border: 0.15rem solid black;
+  border-color: gray;
+  margin: 0.1rem;
   text-align: center;
   line-height: 5rem;
   font-size: 2rem;

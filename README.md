@@ -19,3 +19,7 @@ yarn
 ```shell
 yarn start
 ```
+
+## Requirements 
+[x] 키보드를 입력받을 수 있다.
+[x] 키보드를 클릭시 5개 이상은 입력되지 않는다.
