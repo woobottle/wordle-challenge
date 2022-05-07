@@ -11,12 +11,12 @@ function App() {
   const currentTheme = useMemo(() => theme === 'light' ? lightTheme : darkTheme, [theme])
   
   const { 
-    currentInput,
-    wordsEvaulated,
     words, 
     rowIndex,
-    clickEnter, 
+    currentInput,
+    wordsEvaulated,
     checkWord, 
+    clickEnter, 
     clickLetter, 
     clickDeleteButton, 
   } = useKeyboard()
@@ -34,6 +34,7 @@ function App() {
         />
         <KeyBoard 
           words={words} 
+          wordsEvaulated={wordsEvaulated}
           checkWord={checkWord} 
           clickEnter={clickEnter} 
           clickLetter={clickLetter} 

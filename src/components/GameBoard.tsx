@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { getBackgroundColor } from '../utils';
 
 interface Props {
   words: string[];
@@ -59,16 +60,3 @@ const InputBox = styled.div<{ status?: string }>`
   text-transform: uppercase;
   background-color: ${(props) => getBackgroundColor(props.status)};
 `
-
-const getBackgroundColor = (status: string | undefined) => {
-  if (status === undefined) {
-    return ''
-  }
-  if (status === 'absent') {
-    return '#3a3a3c'
-  }
-  if (status === 'mismatch') {
-    return '#b59f3b'
-  }
-  return '#538d4e'
-}
