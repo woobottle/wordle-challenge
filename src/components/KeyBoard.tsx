@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { firstLineOfKeyboard, GAME_STATUS, secondLineOfKeyboard, thirdLineOfKeyboard } from '../constants';
 import { getBackgroundColor } from '../utils';
+const keyMapper = new Map();
 
 interface Props {
   words: string[];
@@ -23,21 +24,20 @@ const KeyBoard = ({
   clickDeleteButton, 
 }: Props) => {
   const keyBoardMapper = useMemo(() => {
-    const mapper = new Map();
     const flattenWords = words.join('').split('')
     
     flattenWords.forEach((char, index) => {
       if (char === '') return
       const value = wordsEvaulated[~~(index/5)][index%5];
-      if (!mapper.has(char)) {
-        mapper.set(char, value);
+      if (!keyMapper.has(char)) {
+        keyMapper.set(char, value);
       }
       if (value === 'correct') {
-        mapper.set(char, value);
+        keyMapper.set(char, value);
       } 
     })
 
-    return mapper;
+    return keyMapper;
   }, [words, wordsEvaulated]);
 
   const clickHandler = (e: React.SyntheticEvent) => {

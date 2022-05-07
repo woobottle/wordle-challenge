@@ -110,6 +110,7 @@ const reducer = (prev: gameState, state: reducerState) => {
       const isComplete =
         wordsEvaulated[prev.rowIndex].indexOf(BOARD_INPUT_STATUS.ABSENT) === -1 &&
         wordsEvaulated[prev.rowIndex].indexOf(BOARD_INPUT_STATUS.MISMATCH) === -1;
+
       return {
         ...prev,
         columnIndex: 0,
