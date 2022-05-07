@@ -20,7 +20,6 @@ const KeyBoard = ({
   clickLetter, 
   clickDeleteButton, 
 }: Props) => {
-  
   const keyBoardMapper = useMemo(() => {
     const mapper = new Map();
     const flattenWords = words.join('').split('')
