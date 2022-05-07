@@ -1,21 +1,28 @@
+import React from 'react';
 import { useMemo } from 'react';
 import styled from 'styled-components';
+
+interface Button {
+  value: string;
+  type: string;
+}
 interface Props {
-  words: string[][];
+  words?: Button[][];
 }
 
 const GameBoard = ({ words }: Props) => {
-  const flatWords = useMemo(() => words.flat(), [words])
+  const flatWords = useMemo(() => words?.flat(), [words])
+
   return (
     <GameBoardWrapper>
       <InputRow>
-        {flatWords.map(el => <InputBox>{el}</InputBox>)}
+        {flatWords && flatWords.map(({type, value}) => <InputBox>{value}</InputBox>)}
       </InputRow>
     </GameBoardWrapper>
   )
 }
 
-export default GameBoard;
+export default React.memo(GameBoard);
 
 const GameBoardWrapper = styled.div`
   display: flex;
@@ -38,4 +45,5 @@ const InputBox = styled.div`
   line-height: 5rem;
   font-size: 2rem;
   font-weight: bold;
+  text-transform: uppercase;
 `

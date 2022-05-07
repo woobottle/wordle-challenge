@@ -1,18 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-
-const firstLine = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
-const secondLine = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l']
-const thirdLine = ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<']
+import { firstLineOfKeyboard, secondLineOfKeyboard, thirdLineOfKeyboard } from '../constants';
 
 interface Props {
-  columnUp: () => void;
-  columnDown: () => void;
-  onClick: (word: string) => void;
-  rowUp: () => void;
+  clickLetter: () => void;
+  clickDeleteButton: () => void;
+  setWord: (word: string) => void;
+  clickEnter: () => void;
+  checkWord: () => boolean;
 }
 
-const KeyBoard = ({ columnUp, columnDown, onClick, rowUp }: Props) => {
+const KeyBoard = ({ clickLetter, clickDeleteButton, setWord, clickEnter, checkWord }: Props) => {
   const clickHandler = (e: React.SyntheticEvent) => {
     if (!(e.target instanceof HTMLButtonElement)) {
       return 
@@ -22,35 +20,36 @@ const KeyBoard = ({ columnUp, columnDown, onClick, rowUp }: Props) => {
     if (!buttonValue) return;
 
     if (buttonValue === 'enter') {
-      rowUp()
+      if(!checkWord()) return;
+      clickEnter()
       return
     }
 
     if (buttonValue === '<') {
-      columnDown()
+      clickDeleteButton()
       return
     }
 
-    onClick(buttonValue);
-    columnUp()
+    setWord(buttonValue);
+    clickLetter()
     return
   }
 
   return (
     <KeyBoardWrapper onClick={clickHandler}>
       <KeyRow>
-        {firstLine.map(word => <KeyButton key={word} data-key={word}>{word}</KeyButton>)}
+        {firstLineOfKeyboard.map(word => <KeyButton key={word} data-key={word}>{word}</KeyButton>)}
       </KeyRow>
       <KeyRow>
-        {secondLine.map(word => <KeyButton key={word} data-key={word}>{word}</KeyButton>)}
+        {secondLineOfKeyboard.map(word => <KeyButton key={word} data-key={word}>{word}</KeyButton>)}
       </KeyRow>
       <KeyRow>
-        {thirdLine.map(word => <KeyButton key={word} data-key={word}>{word}</KeyButton>)}
+        {thirdLineOfKeyboard.map(word => <KeyButton key={word} data-key={word}>{word}</KeyButton>)}
       </KeyRow>
     </KeyBoardWrapper>
   ) }
 
-export default KeyBoard
+export default React.memo(KeyBoard);
 
 const KeyBoardWrapper = styled.div`
   margin-top: 1rem;
@@ -72,4 +71,6 @@ const KeyButton = styled.button`
   font-weight: bold;
   text-transform: uppercase;
   cursor: pointer;
+  border-radius: 0.5rem;
+  border: unset;
 `
