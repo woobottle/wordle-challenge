@@ -12,7 +12,7 @@ function App() {
   
   const { 
     currentInput,
-    columnIndex,
+    wordsEvaulated,
     words, 
     rowIndex,
     clickEnter, 
@@ -27,11 +27,13 @@ function App() {
       <div className="App">
         {/* <GNB /> */}
         <GameBoard 
-          currentInput={currentInput}
           words={words} 
+          wordsEvaulated={wordsEvaulated}
           rowIndex={rowIndex} 
-          />
+          currentInput={currentInput}
+        />
         <KeyBoard 
+          words={words} 
           checkWord={checkWord} 
           clickEnter={clickEnter} 
           clickLetter={clickLetter} 

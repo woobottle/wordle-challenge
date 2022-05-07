@@ -8,7 +8,7 @@ interface gameState {
   words: string[];
   currentInput: string[];
   gameStatus: string;
-  wordsEvaulated: Array<string[] | null> | null[];
+  wordsEvaulated: Array<string[]>;
 }
 
 type reducerState =
@@ -43,13 +43,13 @@ const useKeyboard = () => {
   return {
     currentInput: state.currentInput,
     words: state.words,
-    columnIndex: state.columnIndex,
+    wordsEvaulated: state.wordsEvaulated,
     rowIndex: state.rowIndex,
     checkWord,
     clickEnter,
     clickLetter,
     clickDeleteButton,
-  }
+  };
 }
 
 const getAnswer = () => WORDS[~~(Math.random() * WORDS.length)]
@@ -61,7 +61,14 @@ const getIntialState = () => ({
   columnIndex: 0,
   currentInput: Array.from({ length: 5 }, () => ""),
   words: Array.from({ length: 6 }, () => ""),
-  wordsEvaulated: Array.from({ length: 6 }, () => null),
+  wordsEvaulated: [
+    Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
+    Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
+    Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
+    Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
+    Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
+    Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
+  ],
   gameStatus: GAME_STATUS.START,
 });
 

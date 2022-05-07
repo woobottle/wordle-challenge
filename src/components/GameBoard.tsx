@@ -5,13 +5,14 @@ interface Props {
   words: string[];
   rowIndex: number;
   currentInput: string[];
+  wordsEvaulated: Array<string[]>;
 }
 
-const GameBoard = ({ words, rowIndex, currentInput }: Props) => {
+const GameBoard = ({ words, rowIndex, currentInput, wordsEvaulated }: Props) => {
   return (
     <GameBoardWrapper>
-      {words.map((word, index) => {
-        if (index === rowIndex) {
+      {words.map((word, wordIndex) => {
+        if (wordIndex === rowIndex) {
           return (
             <InputRow>
               {currentInput.map((column, _index) => <InputBox>{column}</InputBox>)}
@@ -22,8 +23,8 @@ const GameBoard = ({ words, rowIndex, currentInput }: Props) => {
         return (
           <InputRow>
             {!!word === true
-              ? word.split('').map((column, _index) => <InputBox>{column}</InputBox>)
-              : Array.from({ length: 5 }).map((_column, _index) => <InputBox></InputBox>)
+              ? word.split('').map((column, columnIndex) => <InputBox status={wordsEvaulated[wordIndex][columnIndex]}>{column}</InputBox>)
+              : Array.from({ length: 5 }).map((_column, _index) => <InputBox />)
             }
           </InputRow>
         )
@@ -46,7 +47,7 @@ const InputRow = styled.div`
   margin: 0 auto;
 `
 
-const InputBox = styled.div`
+const InputBox = styled.div<{ status?: string }>`
   border: 0.15rem solid black;
   border-color: gray;
   margin: 0.1rem;
@@ -56,4 +57,18 @@ const InputBox = styled.div`
   font-size: 2rem;
   font-weight: bold;
   text-transform: uppercase;
+  background-color: ${(props) => getBackgroundColor(props.status)};
 `
+
+const getBackgroundColor = (status: string | undefined) => {
+  if (status === undefined) {
+    return ''
+  }
+  if (status === 'absent') {
+    return '#3a3a3c'
+  }
+  if (status === 'mismatch') {
+    return '#b59f3b'
+  }
+  return '#538d4e'
+}
