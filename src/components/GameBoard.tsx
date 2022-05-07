@@ -29,7 +29,7 @@ const GameBoard = ({ words, rowIndex, currentInput, wordsEvaulated }: Props) => 
             }
           </InputRow>
         )
-        })}
+      })}
     </GameBoardWrapper>
   )
 }

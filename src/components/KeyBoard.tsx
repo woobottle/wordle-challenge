@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { firstLineOfKeyboard, secondLineOfKeyboard, thirdLineOfKeyboard } from '../constants';
+import { firstLineOfKeyboard, GAME_STATUS, secondLineOfKeyboard, thirdLineOfKeyboard } from '../constants';
 import { getBackgroundColor } from '../utils';
 
 interface Props {
   words: string[];
+  gameStatus: string;
   wordsEvaulated: string[][];
   checkWord: () => boolean;
   clickEnter: () => void;
@@ -14,6 +15,7 @@ interface Props {
 
 const KeyBoard = ({ 
   words, 
+  gameStatus,
   wordsEvaulated,
   checkWord, 
   clickEnter, 
@@ -39,7 +41,7 @@ const KeyBoard = ({
   }, [words, wordsEvaulated]);
 
   const clickHandler = (e: React.SyntheticEvent) => {
-    if (!(e.target instanceof HTMLButtonElement)) {
+    if (!(e.target instanceof HTMLButtonElement) || gameStatus === GAME_STATUS.COMPLETE) {
       return 
     }
 
@@ -73,7 +75,7 @@ const KeyBoard = ({
         {thirdLineOfKeyboard.map(word => <KeyButton key={word} data-key={word} status={keyBoardMapper.get(word)}>{word}</KeyButton>)}
       </KeyRow>
     </KeyBoardWrapper>
-  ) }
+  )}
 
 export default React.memo(KeyBoard);
 

@@ -14,7 +14,8 @@ interface gameState {
 type reducerState =
   | { type: "clickEnter" }
   | { type: "clickDeleteButton" }
-  | { type: "clickLetter"; value: string };
+  | { type: "clickLetter"; value: string }
+  | { type: 'clearGame' }
 
 const useKeyboard = () => {
   const [state, dispatch] = useReducer(reducer, getIntialState())
@@ -31,8 +32,9 @@ const useKeyboard = () => {
 
   const checkWord = () => {
     const inputWord = state.currentInput.join("");
+    if (inputWord.length !== 5) return false;
     if (!isInList(inputWord)) {
-      alert("잘못된 단어 양식 입니다.");
+      alert("잘못된 단어 입니다.");
       return false;
     }
     return true;
@@ -50,11 +52,13 @@ const useKeyboard = () => {
     dispatch({ type: "clickLetter", value: word });
   };
 
+  const clearGame = () => {
+    dispatch({ type: 'clearGame' })
+  }
+
   return {
-    words: state.words,
-    rowIndex: state.rowIndex,
-    currentInput: state.currentInput,
-    wordsEvaulated: state.wordsEvaulated,
+    state,
+    clearGame,
     checkWord,
     clickEnter,
     clickLetter,
@@ -62,18 +66,17 @@ const useKeyboard = () => {
   };
 }
 
-const getValueFromLocalStorage = (key: string, property: string) => JSON.parse(String(window.localStorage.getItem(key)))[`${property}`];
 const getAnswer = () => WORDS[~~(Math.random() * WORDS.length)]
 const isInList = (word: string) => WORDS.includes(word) ? true : false;
+
+const getValueFromLocalStorage = (key: string, property: string) => 
+  window.localStorage.getItem(key) ? JSON.parse(String(window.localStorage.getItem(key)))[`${property}`] : null;
 
 const getIntialState = () => ({
   answer: getValueFromLocalStorage("boardStatus", "answer") || getAnswer(),
   rowIndex: getValueFromLocalStorage("boardStatus", "rowIndex") || 0,
-  gameStatus:
-    getValueFromLocalStorage("boardStatus", "gameStatus") || GAME_STATUS.START,
-  words:
-    getValueFromLocalStorage("boardStatus", "words") ||
-    Array.from({ length: 6 }, () => ""),
+  gameStatus: getValueFromLocalStorage("boardStatus", "gameStatus") || GAME_STATUS.START,
+  words: getValueFromLocalStorage("boardStatus", "words") || Array.from({ length: 6 }, () => ""),
   wordsEvaulated: getValueFromLocalStorage("boardStatus", "wordsEvaulated") || [
       Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
       Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
@@ -89,26 +92,31 @@ const getIntialState = () => ({
 const reducer = (prev: gameState, state: reducerState) => {
   switch (state.type) {
     case "clickEnter":
+      const wordsEvaulated = prev.wordsEvaulated.map((wordEvaluated, index) => {
+        if (index === prev.rowIndex) {
+          return prev.currentInput.map((val, index) => {
+            const valueIndex = prev.answer.indexOf(val);
+            if (valueIndex === -1) {
+              return BOARD_INPUT_STATUS.ABSENT;
+            }
+            if (valueIndex !== index) {
+              return BOARD_INPUT_STATUS.MISMATCH;
+            }
+            return BOARD_INPUT_STATUS.CORRECT;
+          });
+        }
+        return wordEvaluated;
+      });
+      const isComplete =
+        wordsEvaulated[prev.rowIndex].indexOf(BOARD_INPUT_STATUS.ABSENT) === -1 &&
+        wordsEvaulated[prev.rowIndex].indexOf(BOARD_INPUT_STATUS.MISMATCH) === -1;
       return {
         ...prev,
         columnIndex: 0,
         rowIndex: prev.rowIndex + 1,
+        wordsEvaulated,
+        gameStatus: isComplete ? GAME_STATUS.COMPLETE : prev.gameStatus,
         currentInput: Array.from({ length: 5 }, () => ""),
-        wordsEvaulated: prev.wordsEvaulated.map((wordEvaluated, index) => {
-          if (index === prev.rowIndex) {
-            return prev.currentInput.map((val, index) => {
-              const valueIndex = prev.answer.indexOf(val);
-              if (valueIndex === -1) {
-                return BOARD_INPUT_STATUS.ABSENT
-              }
-              if (valueIndex !== index) {
-                return BOARD_INPUT_STATUS.MISMATCH;
-              }
-              return BOARD_INPUT_STATUS.CORRECT;
-            })
-          }
-          return wordEvaluated;
-        }),
         words: prev.words.map((word, index) => {
           if (index === prev.rowIndex) {
             return prev.currentInput.join('');
@@ -137,6 +145,11 @@ const reducer = (prev: gameState, state: reducerState) => {
           }
           return el;
         }),
+      };
+    case 'clearGame' :
+      return {
+        ...prev,
+        gameStatus: GAME_STATUS.COMPLETE
       };
     default:
       return getIntialState();

@@ -11,10 +11,7 @@ function App() {
   const currentTheme = useMemo(() => theme === 'light' ? lightTheme : darkTheme, [theme])
   
   const { 
-    words, 
-    rowIndex,
-    currentInput,
-    wordsEvaulated,
+    state,
     checkWord, 
     clickEnter, 
     clickLetter, 
@@ -25,15 +22,9 @@ function App() {
     <ThemeProvider theme={{ currentTheme, setTheme }} >
       <GlobalStyles />
       <div className="App">
-        <GameBoard 
-          words={words} 
-          wordsEvaulated={wordsEvaulated}
-          rowIndex={rowIndex} 
-          currentInput={currentInput}
-        />
+        <GameBoard {...state} />
         <KeyBoard 
-          words={words} 
-          wordsEvaulated={wordsEvaulated}
+          {...state}
           checkWord={checkWord} 
           clickEnter={clickEnter} 
           clickLetter={clickLetter} 

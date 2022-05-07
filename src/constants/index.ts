@@ -8,7 +8,7 @@ const maxWidth = deskTopSize
 const GAME_STATUS = {
   START: 'start',
   DOING: 'doing',
-  END: 'end'
+  COMPLETE: 'complete'
 } as const
 
 const BOARD_INPUT_STATUS = {
