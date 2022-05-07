@@ -1,23 +1,33 @@
 import React from 'react';
-import { useMemo } from 'react';
 import styled from 'styled-components';
 
-interface Button {
-  value: string;
-  type: string;
-}
 interface Props {
-  words?: Button[][];
+  words: string[];
+  rowIndex: number;
+  currentInput: string[];
 }
 
-const GameBoard = ({ words }: Props) => {
-  const flatWords = useMemo(() => words?.flat(), [words])
-
+const GameBoard = ({ words, rowIndex, currentInput }: Props) => {
   return (
     <GameBoardWrapper>
-      <InputRow>
-        {flatWords && flatWords.map(({type, value}) => <InputBox>{value}</InputBox>)}
-      </InputRow>
+      {words.map((word, index) => {
+        if (index === rowIndex) {
+          return (
+            <InputRow>
+              {currentInput.map((column, _index) => <InputBox>{column}</InputBox>)}
+            </InputRow>
+          )
+        }
+        
+        return (
+          <InputRow>
+            {!!word === true
+              ? word.split('').map((column, _index) => <InputBox>{column}</InputBox>)
+              : Array.from({ length: 5 }).map((_column, _index) => <InputBox></InputBox>)
+            }
+          </InputRow>
+        )
+        })}
     </GameBoardWrapper>
   )
 }
@@ -32,7 +42,6 @@ const GameBoardWrapper = styled.div`
 
 const InputRow = styled.div`
   display: grid;
-  grid-template-rows: repeat(6, 5rem);
   grid-template-columns: repeat(5, 5rem);
   margin: 0 auto;
 `
@@ -42,6 +51,7 @@ const InputBox = styled.div`
   border-color: gray;
   margin: 0.1rem;
   text-align: center;
+  height: 5rem;
   line-height: 5rem;
   font-size: 2rem;
   font-weight: bold;

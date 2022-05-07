@@ -3,14 +3,13 @@ import styled from 'styled-components';
 import { firstLineOfKeyboard, secondLineOfKeyboard, thirdLineOfKeyboard } from '../constants';
 
 interface Props {
-  clickLetter: () => void;
   clickDeleteButton: () => void;
-  setWord: (word: string) => void;
+  clickLetter: (word: string) => void;
   clickEnter: () => void;
   checkWord: () => boolean;
 }
 
-const KeyBoard = ({ clickLetter, clickDeleteButton, setWord, clickEnter, checkWord }: Props) => {
+const KeyBoard = ({ clickLetter, clickDeleteButton, clickEnter, checkWord }: Props) => {
   const clickHandler = (e: React.SyntheticEvent) => {
     if (!(e.target instanceof HTMLButtonElement)) {
       return 
@@ -30,8 +29,7 @@ const KeyBoard = ({ clickLetter, clickDeleteButton, setWord, clickEnter, checkWo
       return
     }
 
-    setWord(buttonValue);
-    clickLetter()
+    clickLetter(buttonValue)
     return
   }
 

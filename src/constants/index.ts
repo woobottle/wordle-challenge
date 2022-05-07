@@ -11,11 +11,11 @@ const GAME_STATUS = {
   END: 'end'
 } as const
 
-const BUTTON_STATUS = {
+const BOARD_INPUT_STATUS = {
   YET: 'yet',
-  WRONG: 'wrong',
+  ABSENT: 'absent',
   CORRECT: 'correct',
-  PRESENT: 'present',
+  MISMATCH: 'mismatch',
 } as const
 
 const firstLineOfKeyboard = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
@@ -29,8 +29,8 @@ export {
   mobileSize,
   maxWidth,
   GAME_STATUS,
-  BUTTON_STATUS,
+  BOARD_INPUT_STATUS,
   firstLineOfKeyboard,
   secondLineOfKeyboard,
-  thirdLineOfKeyboard
-}
+  thirdLineOfKeyboard,
+};

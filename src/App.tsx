@@ -10,20 +10,32 @@ function App() {
   const [theme, setTheme] = useState('dark')
   const currentTheme = useMemo(() => theme === 'light' ? lightTheme : darkTheme, [theme])
   
-  const { clickLetter, clickDeleteButton, setWord, words, clickEnter, checkWord } = useKeyboard()
-  
+  const { 
+    currentInput,
+    columnIndex,
+    words, 
+    rowIndex,
+    clickEnter, 
+    checkWord, 
+    clickLetter, 
+    clickDeleteButton, 
+  } = useKeyboard()
+
   return (
     <ThemeProvider theme={{ currentTheme, setTheme }} >
       <GlobalStyles />
       <div className="App">
         {/* <GNB /> */}
-        <GameBoard words={words} />
+        <GameBoard 
+          currentInput={currentInput}
+          words={words} 
+          rowIndex={rowIndex} 
+          />
         <KeyBoard 
+          checkWord={checkWord} 
           clickEnter={clickEnter} 
           clickLetter={clickLetter} 
           clickDeleteButton={clickDeleteButton} 
-          setWord={setWord} 
-          checkWord={checkWord} 
         />
       </div>
     </ThemeProvider>
