@@ -34,7 +34,7 @@ const GameBoard = ({ words, rowIndex, currentInput, wordsEvaulated }: Props) => 
   )
 }
 
-export default React.memo(GameBoard);
+export default GameBoard;
 
 const GameBoardWrapper = styled.div`
   display: flex;

@@ -1,34 +1,42 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { firstLineOfKeyboard, GAME_STATUS, secondLineOfKeyboard, thirdLineOfKeyboard } from '../constants';
+import { firstLineOfKeyboard, GAME_STATUS, secondLineOfKeyboard, thirdLineOfKeyboard, WORDS, WORD_LENGTH } from '../constants';
+import { reducerState } from '../hooks/useGame';
+import useKeyboard from '../hooks/useKeyboard';
 import { getBackgroundColor } from '../utils';
 const keyMapper = new Map();
+
 
 interface Props {
   words: string[];
   gameStatus: string;
   wordsEvaulated: string[][];
-  checkWord: () => boolean;
-  clickEnter: () => void;
-  clickLetter: (word: string) => void;
-  clickDeleteButton: () => void;
+  currentInput: string[],
+  rowIndex: number,
+  answer: string,
+  dispatch: React.Dispatch<reducerState>
 }
 
 const KeyBoard = ({ 
   words, 
+  answer,
+  rowIndex,
   gameStatus,
+  currentInput,
   wordsEvaulated,
-  checkWord, 
-  clickEnter, 
-  clickLetter, 
-  clickDeleteButton, 
+  dispatch
 }: Props) => {
+  const { 
+    clickEnter,
+    clickLetter,
+    clickDeleteButton } = useKeyboard({ currentInput, wordsEvaulated, rowIndex, answer, gameStatus, dispatch})
+
   const keyBoardMapper = useMemo(() => {
     const flattenWords = words.join('').split('')
     
     flattenWords.forEach((char, index) => {
       if (char === '') return
-      const value = wordsEvaulated[~~(index/5)][index%5];
+      const value = wordsEvaulated[~~(index / WORD_LENGTH)][index % WORD_LENGTH];
       if (!keyMapper.has(char)) {
         keyMapper.set(char, value);
       }
@@ -39,6 +47,16 @@ const KeyBoard = ({
 
     return keyMapper;
   }, [words, wordsEvaulated]);
+  
+  const isInList = (word: string) => (WORDS.includes(word) ? true : false);
+  const checkSentence = (sentence: string) => {
+    if (sentence.length !== WORD_LENGTH) return false;
+    if (!isInList(sentence)) {
+      alert("잘못된 단어 입니다.");
+      return false;
+    }
+    return true;
+  };
 
   const clickHandler = (e: React.SyntheticEvent) => {
     if (!(e.target instanceof HTMLButtonElement) || gameStatus === GAME_STATUS.COMPLETE) {
@@ -49,7 +67,7 @@ const KeyBoard = ({
     if (!buttonValue) return;
 
     if (buttonValue === 'enter') {
-      if(!checkWord()) return;
+      if (!checkSentence(currentInput.join(""))) return;
       clickEnter()
       return
     }
@@ -63,6 +81,11 @@ const KeyBoard = ({
     return
   }
 
+  // useEffect(() => {
+  //   console.log('hihi')
+  //   updateGameStatus({ wordsEvaulated, rowIndex})
+  // }, [rowIndex, wordsEvaulated])
+
   return (
     <KeyBoardWrapper onClick={clickHandler}>
       <KeyRow>
@@ -75,7 +98,8 @@ const KeyBoard = ({
         {thirdLineOfKeyboard.map(word => <KeyButton key={word} data-key={word} status={keyBoardMapper.get(word)}>{word}</KeyButton>)}
       </KeyRow>
     </KeyBoardWrapper>
-  )}
+  )
+}
 
 export default React.memo(KeyBoard);
 

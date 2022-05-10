@@ -5,9 +5,11 @@ const tabletSize = "784px"
 const mobileSize = "414px"
 const maxWidth = deskTopSize
 
+const WORD_LENGTH = 5;
+const ROW_LENGTH = 6;
 const GAME_STATUS = {
-  START: 'start',
   DOING: 'doing',
+  FAIL: 'fail',
   COMPLETE: 'complete'
 } as const
 
@@ -24,6 +26,8 @@ const thirdLineOfKeyboard = ["enter", "z", "x", "c", "v", "b", "n", "m", "<"];
 
 export {
   WORDS,
+  WORD_LENGTH,
+  ROW_LENGTH,
   deskTopSize,
   tabletSize,
   mobileSize,

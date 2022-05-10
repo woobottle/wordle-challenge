@@ -1,184 +1,101 @@
-import { useEffect, useReducer } from "react";
-import { GAME_STATUS, BOARD_INPUT_STATUS, WORDS } from "../constants";
+import { useCallback } from "react";
+import { BOARD_INPUT_STATUS, GAME_STATUS, ROW_LENGTH } from "../constants";
+import { GameState, reducerState } from "./useGame";
 
-interface gameState {
+interface Props {
   answer: string;
   rowIndex: number;
-  columnIndex: number;
-  words: string[];
-  currentInput: string[];
   gameStatus: string;
-  wordsEvaulated: Array<string[]>;
+  currentInput: string[];
+  wordsEvaulated: string[][];
+  dispatch: React.Dispatch<reducerState>;
 }
 
-type reducerState =
-  | { type: "clickEnter" }
-  | { type: "clickDeleteButton" }
-  | { type: "clickLetter"; value: string }
-  | { type: 'clearGame' }
+const useKeyboard = ({
+  answer,
+  rowIndex,
+  currentInput,
+  wordsEvaulated,
+  dispatch,
+}: Props) => {
+  const clickEnter = useCallback(() => {
+    const updatedWordsEvaulated = updateWordsEvaulated({
+      answer,
+      rowIndex,
+      currentInput,
+      wordsEvaulated,
+    });
+    dispatch({ type: "clickEnter", value: updatedWordsEvaulated });
+    const gameStatus = getGameStatus({
+      rowIndex,
+      wordsEvaulated,
+    });
+    dispatch({ type: "updateGameStatus", value: gameStatus });
+  }, [answer, currentInput, dispatch, rowIndex, wordsEvaulated]);
 
-const useKeyboard = () => {
-  const [state, dispatch] = useReducer(reducer, getIntialState())
-  
-  useEffect(() => {
-    window.localStorage.setItem('boardStatus', JSON.stringify({
-      answer: state.answer,
-      rowIndex: state.rowIndex,
-      words: state.words,
-      gameStatus: state.gameStatus,
-      wordsEvaulated: state.wordsEvaulated,
-    }))
-  }, [state.words, state.gameStatus, state.answer, state.rowIndex, state.wordsEvaulated])
-
-  const checkWord = () => {
-    const inputWord = state.currentInput.join("");
-    if (inputWord.length !== 5) return false;
-    if (!isInList(inputWord)) {
-      alert("잘못된 단어 입니다.");
-      return false;
-    }
-    return true;
-  };
-
-  const clickEnter = () => {
-    dispatch({ type: "clickEnter" });
-  };
-
-  const clickDeleteButton = () => {
+  const clickDeleteButton = useCallback(() => {
     dispatch({ type: "clickDeleteButton" });
-  };
+  }, [dispatch]);
 
-  const clickLetter = (word: string) => {
+  const clickLetter = useCallback((word: string) => {
     dispatch({ type: "clickLetter", value: word });
-  };
+  }, [dispatch]);
 
-  const clearGame = () => {
-    dispatch({ type: 'clearGame' })
-  }
-
+  const updateGameStatus = useCallback(({ wordsEvaulated, rowIndex }: Pick<GameState, "wordsEvaulated" | "rowIndex">) => {
+    const gameStatus = getGameStatus({
+      rowIndex,
+      wordsEvaulated,
+    });  
+    dispatch({ type: "updateGameStatus", value: gameStatus });
+  }, [dispatch]);
+  
   return {
-    state,
-    clearGame,
-    checkWord,
     clickEnter,
-    clickLetter,
     clickDeleteButton,
+    clickLetter,
+    updateGameStatus,
   };
-}
-
-const getAnswer = () => WORDS[~~(Math.random() * WORDS.length)]
-const isInList = (word: string) => WORDS.includes(word) ? true : false;
-
-const getValueFromLocalStorage = (key: string, property: string) => 
-  window.localStorage.getItem(key) ? JSON.parse(String(window.localStorage.getItem(key)))[`${property}`] : null;
-
-const getIntialState = () => ({
-  answer: getValueFromLocalStorage("boardStatus", "answer") || getAnswer(),
-  rowIndex: getValueFromLocalStorage("boardStatus", "rowIndex") || 0,
-  gameStatus: getValueFromLocalStorage("boardStatus", "gameStatus") || GAME_STATUS.START,
-  words: getValueFromLocalStorage("boardStatus", "words") || Array.from({ length: 6 }, () => ""),
-  wordsEvaulated: getValueFromLocalStorage("boardStatus", "wordsEvaulated") || [
-      Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
-      Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
-      Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
-      Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
-      Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
-      Array.from({ length: 6 }, () => BOARD_INPUT_STATUS.YET),
-    ],
-  columnIndex: 0,
-  currentInput: Array.from({ length: 5 }, () => ""),
-});
-
-const reducer = (prev: gameState, state: reducerState) => {
-  switch (state.type) {
-    case "clickEnter":
-      const wordsEvaulated = getWordsEvaulated({
-        currentInput: prev.currentInput,
-        wordsEvaulated: prev.wordsEvaulated,
-        rowIndex: prev.rowIndex,
-        answer: prev.answer,
-      })
-      
-      const isComplete =
-        wordsEvaulated[prev.rowIndex].indexOf(BOARD_INPUT_STATUS.ABSENT) === -1 &&
-        wordsEvaulated[prev.rowIndex].indexOf(BOARD_INPUT_STATUS.MISMATCH) === -1;
-
-      return {
-        ...prev,
-        columnIndex: 0,
-        rowIndex: prev.rowIndex + 1,
-        wordsEvaulated,
-        gameStatus: isComplete ? GAME_STATUS.COMPLETE : prev.gameStatus,
-        currentInput: Array.from({ length: 5 }, () => ""),
-        words: prev.words.map((word, index) => {
-          if (index === prev.rowIndex) {
-            return prev.currentInput.join('');
-          }
-          return word;
-        })
-      };
-    case "clickLetter":
-      return {
-        ...prev,
-        columnIndex: Math.min(prev.columnIndex + 1, 4),
-        currentInput: replacePrevInputByColumnIndex({
-          currentInput: prev.currentInput,
-          columnIndex: prev.columnIndex,
-          value: state.value, 
-        })
-      };
-    case "clickDeleteButton":
-      return {
-        ...prev,
-        columnIndex: Math.max(prev.columnIndex - 1, 0),
-        currentInput: replacePrevInputByColumnIndex({
-          currentInput: prev.currentInput,
-          columnIndex: prev.columnIndex,
-          value: '',
-        }),
-      };
-    case 'clearGame' :
-      return {
-        ...prev,
-        gameStatus: GAME_STATUS.COMPLETE
-      };
-    default:
-      return getIntialState();
-  }
 };
 
-const replacePrevInputByColumnIndex = ({
+const updateWordsEvaulated = ({
+  answer,
+  rowIndex,
   currentInput,
-  columnIndex,
-  value,
-}: Pick<gameState, "currentInput" | "columnIndex"> & { value: string }) =>
-  currentInput.map((el, index) => {
-    if (index === columnIndex) {
-      return value;
-    }
-    return el;
-  });
-
-const getWordsEvaulated = ({ 
-  currentInput, 
-  wordsEvaulated, 
-  rowIndex, 
-  answer 
-}: Pick<gameState, "currentInput" | "wordsEvaulated" | 'rowIndex' | 'answer'>) => 
+  wordsEvaulated,
+}: Pick<GameState, "currentInput" | "wordsEvaulated" | "rowIndex" | "answer">) =>
   wordsEvaulated.map((wordEvaluated, index) => {
     if (index === rowIndex) {
       return currentInput.map((val, index) => {
-        const valueIndex = answer.indexOf(val);
-        if (valueIndex === -1) {
+        const isValueInAnswer = answer.indexOf(val) === -1;
+        if (isValueInAnswer) {
           return BOARD_INPUT_STATUS.ABSENT;
         }
-        if (valueIndex !== index) {
-          return BOARD_INPUT_STATUS.MISMATCH;
+
+        if (answer[index] === val) {
+          return BOARD_INPUT_STATUS.CORRECT;
         }
-        return BOARD_INPUT_STATUS.CORRECT;
+
+        return BOARD_INPUT_STATUS.MISMATCH;
       });
     }
     return wordEvaluated;
   });
 
+const getGameStatus = ({
+  rowIndex,
+  wordsEvaulated,
+}: Pick<GameState, "wordsEvaulated" | "rowIndex">): string => {
+  const isComplete = wordsEvaulated[rowIndex].every((el) => el === BOARD_INPUT_STATUS.CORRECT);
+  if (isComplete) return GAME_STATUS.COMPLETE;
+  
+  const isFail = rowIndex === ROW_LENGTH;
+  if (isFail) return GAME_STATUS.FAIL;
+
+  return GAME_STATUS.DOING;
+};
+
+
+
 export default useKeyboard;
+
+
