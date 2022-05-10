@@ -92,21 +92,13 @@ const getIntialState = () => ({
 const reducer = (prev: gameState, state: reducerState) => {
   switch (state.type) {
     case "clickEnter":
-      const wordsEvaulated = prev.wordsEvaulated.map((wordEvaluated, index) => {
-        if (index === prev.rowIndex) {
-          return prev.currentInput.map((val, index) => {
-            const valueIndex = prev.answer.indexOf(val);
-            if (valueIndex === -1) {
-              return BOARD_INPUT_STATUS.ABSENT;
-            }
-            if (valueIndex !== index) {
-              return BOARD_INPUT_STATUS.MISMATCH;
-            }
-            return BOARD_INPUT_STATUS.CORRECT;
-          });
-        }
-        return wordEvaluated;
-      });
+      const wordsEvaulated = getWordsEvaulated({
+        currentInput: prev.currentInput,
+        wordsEvaulated: prev.wordsEvaulated,
+        rowIndex: prev.rowIndex,
+        answer: prev.answer,
+      })
+      
       const isComplete =
         wordsEvaulated[prev.rowIndex].indexOf(BOARD_INPUT_STATUS.ABSENT) === -1 &&
         wordsEvaulated[prev.rowIndex].indexOf(BOARD_INPUT_STATUS.MISMATCH) === -1;
@@ -129,22 +121,20 @@ const reducer = (prev: gameState, state: reducerState) => {
       return {
         ...prev,
         columnIndex: Math.min(prev.columnIndex + 1, 4),
-        currentInput: prev.currentInput.map((el, index) => {
-          if (index === prev.columnIndex) {
-            return state.value;
-          }
-          return el;
+        currentInput: replacePrevInputByColumnIndex({
+          currentInput: prev.currentInput,
+          columnIndex: prev.columnIndex,
+          value: state.value, 
         })
       };
     case "clickDeleteButton":
       return {
         ...prev,
         columnIndex: Math.max(prev.columnIndex - 1, 0),
-        currentInput: prev.currentInput.map((el, index) => {
-          if (index === prev.columnIndex) {
-            return '';
-          }
-          return el;
+        currentInput: replacePrevInputByColumnIndex({
+          currentInput: prev.currentInput,
+          columnIndex: prev.columnIndex,
+          value: '',
         }),
       };
     case 'clearGame' :
@@ -157,5 +147,38 @@ const reducer = (prev: gameState, state: reducerState) => {
   }
 };
 
+const replacePrevInputByColumnIndex = ({
+  currentInput,
+  columnIndex,
+  value,
+}: Pick<gameState, "currentInput" | "columnIndex"> & { value: string }) =>
+  currentInput.map((el, index) => {
+    if (index === columnIndex) {
+      return value;
+    }
+    return el;
+  });
+
+const getWordsEvaulated = ({ 
+  currentInput, 
+  wordsEvaulated, 
+  rowIndex, 
+  answer 
+}: Pick<gameState, "currentInput" | "wordsEvaulated" | 'rowIndex' | 'answer'>) => 
+  wordsEvaulated.map((wordEvaluated, index) => {
+    if (index === rowIndex) {
+      return currentInput.map((val, index) => {
+        const valueIndex = answer.indexOf(val);
+        if (valueIndex === -1) {
+          return BOARD_INPUT_STATUS.ABSENT;
+        }
+        if (valueIndex !== index) {
+          return BOARD_INPUT_STATUS.MISMATCH;
+        }
+        return BOARD_INPUT_STATUS.CORRECT;
+      });
+    }
+    return wordEvaluated;
+  });
 
 export default useKeyboard;
