@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { getBackgroundColor } from '../utils';
+import GameRow from './GameRow';
 
 interface Props {
   words: string[];
@@ -12,22 +12,13 @@ const GameBoard = ({ words, rowIndex, currentInput, wordsEvaulated }: Props) => 
   return (
     <GameBoardWrapper>
       {words.map((word, wordIndex) => {
+        let contents = word.split('');
+        const contentsValidate = wordsEvaulated[rowIndex]
         if (wordIndex === rowIndex) {
-          return (
-            <InputRow>
-              {currentInput.map((column, _index) => <InputBox>{column}</InputBox>)}
-            </InputRow>
-          )
+          contents = currentInput;
         }
         
-        return (
-          <InputRow>
-            {!!word === true
-              ? word.split('').map((column, columnIndex) => <InputBox status={wordsEvaulated[wordIndex][columnIndex]}>{column}</InputBox>)
-              : Array.from({ length: 5 }).map((_column, _index) => <InputBox />)
-            }
-          </InputRow>
-        )
+        return <GameRow contents={contents} contentsValidate={contentsValidate} />
       })}
     </GameBoardWrapper>
   )
@@ -40,23 +31,4 @@ const GameBoardWrapper = styled.div`
   justify-content: center;
   flex-direction: column;
   margin-top: 10rem;
-`
-
-const InputRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 5rem);
-  margin: 0 auto;
-`
-
-const InputBox = styled.div<{ status?: string }>`
-  border: 0.15rem solid black;
-  border-color: gray;
-  margin: 0.1rem;
-  text-align: center;
-  height: 5rem;
-  line-height: 5rem;
-  font-size: 2rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  background-color: ${(props) => getBackgroundColor(props.status)};
 `

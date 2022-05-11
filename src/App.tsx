@@ -38,7 +38,7 @@ function App() {
         <KeyBoard
           {...state}
           dispatch={dispatch}
-          />
+        />
       </div>
       <ResultModalPortal>
         {isResultModalOpen && 
