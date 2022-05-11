@@ -2,17 +2,16 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { 
   WORDS, 
-  ROW_LENGTH, 
   WORD_LENGTH,
   GAME_STATUS, 
-  BOARD_INPUT_STATUS, 
   firstLineOfKeyboard, 
   secondLineOfKeyboard, 
   thirdLineOfKeyboard, 
 } from '../constants';
-import { GameState, reducerState } from '../hooks/useGame';
+import { reducerState } from '../hooks/useGame';
 import useKeyboard from '../hooks/useKeyboard';
-import { getBackgroundColor, getGameStatus, updateWordsEvaulated } from '../utils';
+import useModalMessage from '../hooks/useModalMessage';
+import { currentMessage, getBackgroundColor, getGameStatus, updateWordsEvaulated } from '../utils';
 const keyMapper = new Map();
 
 interface Props {
@@ -39,6 +38,7 @@ const KeyBoard = ({
     clickLetter,
     updateGameStatus,
     clickDeleteButton } = useKeyboard({ currentInput, wordsEvaulated, rowIndex, answer, gameStatus, dispatch})
+  const { addMessage } = useModalMessage({ dispatch })
 
   const keyBoardMapper = useMemo(() => {
     const flattenWords = words.join('').split('')
@@ -77,11 +77,12 @@ const KeyBoard = ({
     if (buttonValue === 'enter') {
       const word = currentInput.join("");
       if (!checkWordLength(word, WORD_LENGTH)) {
-        
+        addMessage({ id: Date.now(), message: '단어 길이가 잘못되었습니다.'})
         return;
       }
         
       if (!isWordInList(word, WORDS)) {
+        addMessage({ id: Date.now(), message: '잘못된 단어입니다.' })
         return;
       }
 
@@ -98,7 +99,14 @@ const KeyBoard = ({
       const gameStatus = getGameStatus({
         rowIndex,
         wordsEvaulated: updatedWordsEvaulated,
-      });  
+      });
+      const message = currentMessage({
+        rowIndex,
+        gameStatus,
+        answer,
+      })
+
+      addMessage({ id: Date.now(), message })
       updateGameStatus({ 
         gameStatus
       })

@@ -14,7 +14,7 @@ const useKeyboard = ({
   dispatch,
 }: Props) => {
   const clickEnter = useCallback(
-    ({ wordsEvaulated }: { wordsEvaulated: string[][] }) => {
+    ({ wordsEvaulated }: Pick<Props, "wordsEvaulated">) => {
       dispatch({ type: "clickEnter", value: wordsEvaulated });
     },
     [dispatch]
@@ -29,7 +29,7 @@ const useKeyboard = ({
   }, [dispatch]);
 
   const updateGameStatus = useCallback(
-    ({ gameStatus }: { gameStatus: string }) => {
+    ({ gameStatus }: Pick<Props, "gameStatus">) => {
       dispatch({ type: "updateGameStatus", value: gameStatus });
     },
     [dispatch]

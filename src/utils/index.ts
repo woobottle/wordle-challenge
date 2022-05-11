@@ -50,3 +50,31 @@ export const getGameStatus = ({
 
     return GAME_STATUS.DOING;
   };
+
+
+
+export const currentMessage = ({
+  rowIndex,
+  gameStatus,
+  answer,
+}: Pick<GameState, "rowIndex" | "gameStatus" | "answer">) => {
+  if (gameStatus === GAME_STATUS.FAIL) {
+    return answer;
+  }
+  if (rowIndex === 0) {
+    return "Genius";
+  }
+  if (rowIndex === 1) {
+    return "Magnificent";
+  }
+  if (rowIndex === 2) {
+    return "Impressive";
+  }
+  if (rowIndex === 3) {
+    return "Splendid";
+  }
+  if (rowIndex === 4) {
+    return "Great";
+  }
+  return "Phew";
+};
