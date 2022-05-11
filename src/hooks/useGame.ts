@@ -145,12 +145,7 @@ const getIntialState = (): GameState => {
     isGameComplete = false,
     wordsEvaulated = getInitialWordsEvaulated(),
     columnIndex = 0,
-    modalMessages = [
-      { id: 1, message: "1" },
-      { id: 2, message: "2" },
-      { id: 3, message: "3" },
-      { id: 4, message: "4" },
-    ],
+    modalMessages = [],
   } = getValueFromLocalStorage("boardStatus", [
     "words",
     "answer",

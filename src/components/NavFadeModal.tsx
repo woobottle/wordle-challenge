@@ -1,14 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { ModalMessage } from "../hooks/useGame";
 
 interface Props {
-  answer: string;
   message: ModalMessage;
-  gameStatus: string;
-  rowIndex: number;
   fadeTime: number;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const NavModalPortal = ({ children }: { children: React.ReactNode }) => {
@@ -18,16 +14,17 @@ const NavModalPortal = ({ children }: { children: React.ReactNode }) => {
 }
 
 const NavFadeModal = ({ 
-  setOpen, 
   fadeTime, 
   message
 }: Props) => {
+  const [open, setOpen] = useState<boolean>(true);
+  
   useEffect(() => {
     const timer = setInterval(() => {
-      setOpen(false)
+      setOpen(!open)
     }, fadeTime)
     return () => clearInterval(timer)
-  }, [setOpen, fadeTime])
+  }, [setOpen, fadeTime, open])
 
   return (
     <div>{message.message}</div>

@@ -1,11 +1,19 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { BOARD_INPUT_STATUS, firstLineOfKeyboard, GAME_STATUS, ROW_LENGTH, secondLineOfKeyboard, thirdLineOfKeyboard, WORDS, WORD_LENGTH } from '../constants';
+import { 
+  WORDS, 
+  ROW_LENGTH, 
+  WORD_LENGTH,
+  GAME_STATUS, 
+  BOARD_INPUT_STATUS, 
+  firstLineOfKeyboard, 
+  secondLineOfKeyboard, 
+  thirdLineOfKeyboard, 
+} from '../constants';
 import { GameState, reducerState } from '../hooks/useGame';
 import useKeyboard from '../hooks/useKeyboard';
-import { getBackgroundColor } from '../utils';
+import { getBackgroundColor, getGameStatus, updateWordsEvaulated } from '../utils';
 const keyMapper = new Map();
-
 
 interface Props {
   words: string[];
@@ -49,56 +57,15 @@ const KeyBoard = ({
     return keyMapper;
   }, [words, wordsEvaulated]);
   
-  const isInList = (word: string) => (WORDS.includes(word) ? true : false);
-  const checkSentence = (sentence: string) => {
-    if (sentence.length !== WORD_LENGTH) return false;
-    if (!isInList(sentence)) {
-      alert("잘못된 단어 입니다.");
-      return false;
-    }
+  const isWordInList = (word: string, words: string[]) => {
+    if(words.includes(word)) return true;
+    return false;
+  }
+  const checkWordLength = (word: string, wordLength: number) => {
+    if (word.length !== wordLength) return false;
     return true;
   };
   
-  const updateWordsEvaulated = ({
-    answer,
-    rowIndex,
-    currentInput,
-    wordsEvaulated,
-  }: Pick<GameState, "currentInput" | "wordsEvaulated" | "rowIndex" | "answer">) =>
-    wordsEvaulated.map((wordEvaluated, index) => {
-      if (index === rowIndex) {
-        return currentInput.map((val, index) => {
-          const isValueInAnswer = answer.indexOf(val) === -1;
-          if (isValueInAnswer) {
-            return BOARD_INPUT_STATUS.ABSENT;
-          }
-
-          if (answer[index] === val) {
-            return BOARD_INPUT_STATUS.CORRECT;
-          }
-
-          return BOARD_INPUT_STATUS.MISMATCH;
-        });
-      }
-      return wordEvaluated;
-    });
-
-
-  const getGameStatus = ({
-    rowIndex,
-    wordsEvaulated,
-  }: Pick<GameState, "wordsEvaulated" | "rowIndex">): string => {
-    console.log(wordsEvaulated, rowIndex)
-    // debugger
-    const isComplete = wordsEvaulated[rowIndex].every((el) => el === BOARD_INPUT_STATUS.CORRECT);
-    if (isComplete) return GAME_STATUS.COMPLETE;
-
-    const isFail = rowIndex === ROW_LENGTH;
-    if (isFail) return GAME_STATUS.FAIL;
-
-    return GAME_STATUS.DOING;
-  };
-
   const clickHandler = (e: React.SyntheticEvent) => {
     if (!(e.target instanceof HTMLButtonElement) || gameStatus === GAME_STATUS.COMPLETE) {
       return 
@@ -108,7 +75,15 @@ const KeyBoard = ({
     if (!buttonValue) return;
 
     if (buttonValue === 'enter') {
-      if (!checkSentence(currentInput.join(""))) return;
+      const word = currentInput.join("");
+      if (!checkWordLength(word, WORD_LENGTH)) {
+        
+        return;
+      }
+        
+      if (!isWordInList(word, WORDS)) {
+        return;
+      }
 
       const updatedWordsEvaulated = updateWordsEvaulated({
         answer,
@@ -139,7 +114,7 @@ const KeyBoard = ({
     clickLetter(buttonValue)
     return
   }
-  
+
   return (
     <KeyBoardWrapper onClick={clickHandler}>
       <KeyRow>

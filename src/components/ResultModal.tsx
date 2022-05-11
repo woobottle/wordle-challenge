@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 
 const ResultModalPortal = ({ children }: { children: React.ReactNode }) => {
@@ -8,12 +8,12 @@ const ResultModalPortal = ({ children }: { children: React.ReactNode }) => {
 }
 
 interface Props {
-  status: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  answer: string;
 }
 
-const ResultModal = ({ setOpen, status }: Props) => {
-  const clickHandler = () => setOpen(!status);
+const ResultModal = ({ answer }: Props) => {
+  const [open, setOpen] = useState<boolean>(true)
+  const clickHandler = () => setOpen(!open);
 
   return (
     <div>result<button onClick={clickHandler}>x</button></div>
