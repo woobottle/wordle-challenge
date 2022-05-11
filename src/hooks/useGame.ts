@@ -1,6 +1,11 @@
 import { useEffect, useReducer } from "react";
 import { GAME_STATUS, BOARD_INPUT_STATUS, WORDS, WORD_LENGTH, ROW_LENGTH } from "../constants";
 
+export interface ModalMessage {
+  id: number;
+  message: string
+}
+
 export interface GameState {
   answer: string;
   rowIndex: number;
@@ -9,15 +14,19 @@ export interface GameState {
   currentInput: string[];
   gameStatus: string;
   isGameComplete: boolean;
-  wordsEvaulated: Array<string[]>;
+  wordsEvaulated: string[][];
+  modalMessages: ModalMessage[];
 }
 
 export type reducerState =
-  | { type: "clickEnter", value: string[][] }
+  | { type: "clickEnter"; value: string[][] }
   | { type: "clickDeleteButton" }
-  | { type: "clickLetter", value: string }
-  | { type: "updateGameStatus", value: string }
-  | { type: 'checkComplete', value: boolean }
+  | { type: "clickLetter"; value: string }
+  | { type: "updateGameStatus"; value: string }
+  | { type: "checkComplete"; value: boolean }
+  | { type: "addModalMessage"; value: { id: number, message: string }}
+  | { type: "removeModalMessage", value: number }
+  | { type: "addRowIndex" };
 
 const useGame = () => {
   const [state, dispatch] = useReducer(reducer, getIntialState())
@@ -51,7 +60,6 @@ const reducer = (prev: GameState, state: reducerState) => {
       return {
         ...prev,
         columnIndex: 0,
-        rowIndex: prev.rowIndex + 1,
         wordsEvaulated: state.value,
         currentInput: getInitialCurrentInput(),
         words: prev.words.map((word, index) => {
@@ -68,8 +76,8 @@ const reducer = (prev: GameState, state: reducerState) => {
         currentInput: replacePrevInputByColumnIndex({
           currentInput: prev.currentInput,
           columnIndex: prev.columnIndex,
-          value: state.value, 
-        })
+          value: state.value,
+        }),
       };
     case "clickDeleteButton":
       return {
@@ -78,14 +86,29 @@ const reducer = (prev: GameState, state: reducerState) => {
         currentInput: replacePrevInputByColumnIndex({
           currentInput: prev.currentInput,
           columnIndex: prev.columnIndex,
-          value: '',
+          value: "",
         }),
       };
-    case "updateGameStatus" :
+    case "updateGameStatus":
       return {
         ...prev,
+        rowIndex: prev.rowIndex + 1,
         gameStatus: state.value,
         isGameComplete: state.value !== GAME_STATUS.DOING,
+      };
+    case "addModalMessage":
+      return {
+        ...prev,
+        modalMessages: [...prev.modalMessages, state.value],
+      };
+    case "removeModalMessage":
+      return {
+        ...prev,
+        modalMessages: prev.modalMessages.filter(message => message.id !== state.value)
+      };
+    case "addRowIndex":
+      return {
+        ...prev,
       };
     default:
       return getIntialState();
@@ -122,6 +145,12 @@ const getIntialState = (): GameState => {
     isGameComplete = false,
     wordsEvaulated = getInitialWordsEvaulated(),
     columnIndex = 0,
+    modalMessages = [
+      { id: 1, message: "1" },
+      { id: 2, message: "2" },
+      { id: 3, message: "3" },
+      { id: 4, message: "4" },
+    ],
   } = getValueFromLocalStorage("boardStatus", [
     "words",
     "answer",
@@ -139,6 +168,7 @@ const getIntialState = (): GameState => {
     gameStatus,
     columnIndex,
     currentInput,
+    modalMessages,
     isGameComplete,
     wordsEvaulated,
   };

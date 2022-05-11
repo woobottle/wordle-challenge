@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import styled from 'styled-components';
-import { firstLineOfKeyboard, GAME_STATUS, secondLineOfKeyboard, thirdLineOfKeyboard, WORDS, WORD_LENGTH } from '../constants';
-import { reducerState } from '../hooks/useGame';
+import { BOARD_INPUT_STATUS, firstLineOfKeyboard, GAME_STATUS, ROW_LENGTH, secondLineOfKeyboard, thirdLineOfKeyboard, WORDS, WORD_LENGTH } from '../constants';
+import { GameState, reducerState } from '../hooks/useGame';
 import useKeyboard from '../hooks/useKeyboard';
 import { getBackgroundColor } from '../utils';
 const keyMapper = new Map();
@@ -29,6 +29,7 @@ const KeyBoard = ({
   const { 
     clickEnter,
     clickLetter,
+    updateGameStatus,
     clickDeleteButton } = useKeyboard({ currentInput, wordsEvaulated, rowIndex, answer, gameStatus, dispatch})
 
   const keyBoardMapper = useMemo(() => {
@@ -57,6 +58,46 @@ const KeyBoard = ({
     }
     return true;
   };
+  
+  const updateWordsEvaulated = ({
+    answer,
+    rowIndex,
+    currentInput,
+    wordsEvaulated,
+  }: Pick<GameState, "currentInput" | "wordsEvaulated" | "rowIndex" | "answer">) =>
+    wordsEvaulated.map((wordEvaluated, index) => {
+      if (index === rowIndex) {
+        return currentInput.map((val, index) => {
+          const isValueInAnswer = answer.indexOf(val) === -1;
+          if (isValueInAnswer) {
+            return BOARD_INPUT_STATUS.ABSENT;
+          }
+
+          if (answer[index] === val) {
+            return BOARD_INPUT_STATUS.CORRECT;
+          }
+
+          return BOARD_INPUT_STATUS.MISMATCH;
+        });
+      }
+      return wordEvaluated;
+    });
+
+
+  const getGameStatus = ({
+    rowIndex,
+    wordsEvaulated,
+  }: Pick<GameState, "wordsEvaulated" | "rowIndex">): string => {
+    console.log(wordsEvaulated, rowIndex)
+    // debugger
+    const isComplete = wordsEvaulated[rowIndex].every((el) => el === BOARD_INPUT_STATUS.CORRECT);
+    if (isComplete) return GAME_STATUS.COMPLETE;
+
+    const isFail = rowIndex === ROW_LENGTH;
+    if (isFail) return GAME_STATUS.FAIL;
+
+    return GAME_STATUS.DOING;
+  };
 
   const clickHandler = (e: React.SyntheticEvent) => {
     if (!(e.target instanceof HTMLButtonElement) || gameStatus === GAME_STATUS.COMPLETE) {
@@ -68,7 +109,25 @@ const KeyBoard = ({
 
     if (buttonValue === 'enter') {
       if (!checkSentence(currentInput.join(""))) return;
-      clickEnter()
+
+      const updatedWordsEvaulated = updateWordsEvaulated({
+        answer,
+        rowIndex,
+        currentInput,
+        wordsEvaulated,
+      });
+      clickEnter({
+        wordsEvaulated: updatedWordsEvaulated
+      })
+
+      const gameStatus = getGameStatus({
+        rowIndex,
+        wordsEvaulated: updatedWordsEvaulated,
+      });  
+      updateGameStatus({ 
+        gameStatus
+      })
+
       return
     }
 
@@ -80,12 +139,7 @@ const KeyBoard = ({
     clickLetter(buttonValue)
     return
   }
-
-  // useEffect(() => {
-  //   console.log('hihi')
-  //   updateGameStatus({ wordsEvaulated, rowIndex})
-  // }, [rowIndex, wordsEvaulated])
-
+  
   return (
     <KeyBoardWrapper onClick={clickHandler}>
       <KeyRow>
@@ -127,4 +181,3 @@ const KeyButton = styled.button<{ status?: string }>`
   border: unset;
   background-color: ${({status}) => getBackgroundColor(status)};
 `
-

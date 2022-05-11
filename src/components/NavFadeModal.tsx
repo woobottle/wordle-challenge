@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import ReactDOM from "react-dom";
-import { GAME_STATUS } from "../constants";
+import { ModalMessage } from "../hooks/useGame";
 
 interface Props {
   answer: string;
+  message: ModalMessage;
   gameStatus: string;
   rowIndex: number;
   fadeTime: number;
@@ -16,7 +17,11 @@ const NavModalPortal = ({ children }: { children: React.ReactNode }) => {
   return ReactDOM.createPortal(children, el);
 }
 
-const NavFadeModal = ({ setOpen, fadeTime, rowIndex: currentRound, gameStatus, answer}: Props) => {
+const NavFadeModal = ({ 
+  setOpen, 
+  fadeTime, 
+  message
+}: Props) => {
   useEffect(() => {
     const timer = setInterval(() => {
       setOpen(false)
@@ -24,35 +29,9 @@ const NavFadeModal = ({ setOpen, fadeTime, rowIndex: currentRound, gameStatus, a
     return () => clearInterval(timer)
   }, [setOpen, fadeTime])
 
-  const currentMessage = (currentRound: number, gameStatus: string) => {
-    if (gameStatus === GAME_STATUS.FAIL) {
-      return answer
-    }
-    if (currentRound === 0) {
-      return 'Genius'
-    }
-    if (currentRound === 1) {
-      return 'Magnificent'
-    }
-    if (currentRound === 2) {
-      return 'Impressive'
-    }
-    if (currentRound === 3) {
-      return 'Splendid'
-    }
-    if (currentRound === 4) {
-      return 'Great'
-    }
-    if (currentRound === 5) {
-      return 'Phew'
-    }
-  };
-
   return (
-    <NavModalPortal>
-      <div>{currentMessage(currentRound, gameStatus)}</div>
-    </NavModalPortal>
+    <div>{message.message}</div>
   )
 }
 
-export default NavFadeModal;
+export { NavFadeModal, NavModalPortal };

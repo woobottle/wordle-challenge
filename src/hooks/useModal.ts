@@ -17,4 +17,4 @@ const useModal = ({ isOpen }: Props) => {
   };
 };
 
-export { useModal };
+export default useModal;

@@ -16,10 +16,8 @@ const ResultModal = ({ setOpen, status }: Props) => {
   const clickHandler = () => setOpen(!status);
 
   return (
-    <ResultModalPortal>
-      <div>result<button onClick={clickHandler}>x</button></div>
-    </ResultModalPortal>
+    <div>result<button onClick={clickHandler}>x</button></div>
   )
 }
 
-export default ResultModal;
+export { ResultModal, ResultModalPortal };

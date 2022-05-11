@@ -5,10 +5,9 @@ import { GameBoard, KeyBoard } from './components';
 import { darkTheme, lightTheme } from './assets/styles/theme';
 import GlobalStyles from './assets/styles/GlobalStyles';
 import useGame from './hooks/useGame';
-import { useModal } from './hooks/useModal';
-import { GAME_STATUS } from './constants';
-import NavFadeModal from './components/NavFadeModal';
-import ResultModal from './components/ResultModal';
+import useModal from './hooks/useModal';
+import { NavFadeModal, NavModalPortal } from './components/NavFadeModal';
+import { ResultModal, ResultModalPortal } from './components/ResultModal';
 
 function App() {
   const [theme, setTheme] = useState('dark')
@@ -16,9 +15,11 @@ function App() {
   
   const { state, dispatch } = useGame()
   const isModalOpen = useMemo(() => { 
-    const isOpen = state.gameStatus !== GAME_STATUS.DOING && !state.isGameComplete
+    const isOpen = state.modalMessages.length !== 0
     return isOpen;
-  }, [state.gameStatus, state.isGameComplete])
+  }, [state.modalMessages])
+  
+  console.log(isModalOpen)
   
   const { open: isNavFadeModalOpen, setOpen: setNavModalOpen } = useModal({ 
     isOpen: isModalOpen,
@@ -30,26 +31,31 @@ function App() {
   return (
     <ThemeProvider theme={{ currentTheme, setTheme }}>
       <GlobalStyles />
-      <div className="App">
-        {isNavFadeModalOpen && 
-          <NavFadeModal 
-            {...state} 
-            fadeTime={2000} 
-            setOpen={setNavModalOpen} 
-          />
+      <NavModalPortal>
+        {isNavFadeModalOpen && state.modalMessages.map((message) => 
+          <NavFadeModal
+            {...state}
+            fadeTime={2000}
+            message={message}
+            setOpen={setNavModalOpen}
+          />)
         }
+      </NavModalPortal>
+      <div className="App">
         <GameBoard {...state} />
         <KeyBoard 
           {...state}
           dispatch={dispatch}
-        />
+          />
+      </div>
+      <ResultModalPortal>
         {isResultModalOpen && 
           <ResultModal 
             status={isResultModalOpen} 
             setOpen={setResultModalOpen} 
           />
         }
-      </div>
+      </ResultModalPortal>
     </ThemeProvider>
   );
 }
