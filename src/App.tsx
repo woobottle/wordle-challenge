@@ -35,7 +35,7 @@ function App() {
       </NavModalPortal>
       <div className="App">
         <GameBoard {...state} />
-        <KeyBoard 
+        <KeyBoard
           {...state}
           dispatch={dispatch}
           />

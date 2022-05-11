@@ -72,7 +72,7 @@ const reducer = (prev: GameState, state: reducerState) => {
     case "clickLetter":
       return {
         ...prev,
-        columnIndex: Math.min(prev.columnIndex + 1, 4),
+        columnIndex: Math.min(prev.columnIndex + 1, WORD_LENGTH),
         currentInput: replacePrevInputByColumnIndex({
           currentInput: prev.currentInput,
           columnIndex: prev.columnIndex,
@@ -85,7 +85,7 @@ const reducer = (prev: GameState, state: reducerState) => {
         columnIndex: Math.max(prev.columnIndex - 1, 0),
         currentInput: replacePrevInputByColumnIndex({
           currentInput: prev.currentInput,
-          columnIndex: prev.columnIndex,
+          columnIndex: prev.columnIndex - 1,
           value: "",
         }),
       };

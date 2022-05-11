@@ -47,7 +47,7 @@ const FadeModalWrapper = styled.div<{ time?: number }>`
     }
   }
 
-  animation: fadeout 4s;
+  animation: fadeout 3s;
 `;
 
 export default React.memo(NavFadeModal);

@@ -92,10 +92,6 @@ const KeyBoard = ({
         currentInput,
         wordsEvaulated,
       });
-      clickEnter({
-        wordsEvaulated: updatedWordsEvaulated
-      })
-
       const gameStatus = getGameStatus({
         rowIndex,
         wordsEvaulated: updatedWordsEvaulated,
@@ -106,11 +102,9 @@ const KeyBoard = ({
         answer,
       })
 
+      clickEnter({ wordsEvaulated: updatedWordsEvaulated })
       addMessage({ id: Date.now(), message })
-      updateGameStatus({ 
-        gameStatus
-      })
-
+      updateGameStatus({ gameStatus })
       return
     }
 
