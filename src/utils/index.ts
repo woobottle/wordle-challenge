@@ -3,7 +3,7 @@ import { GameState } from "../hooks/useGame";
 
 export const getBackgroundColor = ({status, initial} : { status: string | undefined, initial?: string }) => {
   if (status === "yet" || status === undefined) return initial;
-  if (status === "absent") return "#818384";
+  if (status === "absent") return "#3a3a3c";
   if (status === "mismatch") return "#b59f3b";
   return "#538d4e";
 };

@@ -14,7 +14,13 @@ const useModalMessage = ({ dispatch }: Props) => {
     dispatch({ type: "removeModalMessage", value: endTime });
   }, [dispatch])
 
+  // resetGame의 위치가 적절치는 않은것 같은데
+  const resetGame = useCallback(() => {
+    dispatch({ type: "resetGame" });
+  }, [dispatch])
+
   return {
+    resetGame,
     addMessage,
     removeMessage
   }

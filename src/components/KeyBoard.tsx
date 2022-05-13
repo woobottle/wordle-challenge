@@ -12,7 +12,6 @@ import { reducerState } from '../hooks/useGame';
 import useKeyboard from '../hooks/useKeyboard';
 import useModalMessage from '../hooks/useModalMessage';
 import { currentMessage, getBackgroundColor, getGameStatus, updateWordsEvaulated } from '../utils';
-const keyMapper = new Map();
 
 interface Props {
   answer: string,
@@ -39,7 +38,8 @@ const KeyBoard = ({
     updateGameStatus,
     clickDeleteButton } = useKeyboard({ currentInput, wordsEvaulated, rowIndex, answer, gameStatus, dispatch})
   const { addMessage } = useModalMessage({ dispatch })
-  
+  const keyMapper = new Map();
+
   const keyBoardMapper = useMemo(() => {
     const flattenWords = words.join('').split('')
     flattenWords.forEach((char, index) => {
@@ -52,7 +52,7 @@ const KeyBoard = ({
         keyMapper.set(char, value);
       }
     })
-
+    
     return keyMapper;
   }, [words, wordsEvaulated]);
   
@@ -133,7 +133,7 @@ const KeyBoard = ({
   )
 }
 
-export default React.memo(KeyBoard);
+export default KeyBoard;
 
 const KeyBoardWrapper = styled.div`
   margin-top: 1rem;

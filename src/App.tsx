@@ -2,12 +2,10 @@ import './App.css';
 import './assets/css/modal.css';
 import { useMemo, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
-import { GameBoard, KeyBoard } from './components';
+import { GameBoard, KeyBoard, NavFadeModal, NavModalPortal, ResultModal, ResultModalPortal } from './components';
 import { darkTheme, lightTheme } from './assets/styles/theme';
 import GlobalStyles from './assets/styles/GlobalStyles';
 import useGame from './hooks/useGame';
-import NavFadeModal, { NavModalPortal } from './components/NavFadeModal';
-import { ResultModal, ResultModalPortal } from './components/ResultModal';
 import useModalMessage from './hooks/useModalMessage';
 
 function App() {
@@ -15,7 +13,7 @@ function App() {
   const currentTheme = useMemo(() => theme === 'light' ? lightTheme : darkTheme, [theme])
   
   const { state, dispatch } = useGame()
-  const { removeMessage } = useModalMessage({ dispatch })
+  const { removeMessage, resetGame } = useModalMessage({ dispatch })
   
   const isResultModalOpen = useMemo(() => { 
     const isOpen = state.modalMessages.length === 0 && state.isGameComplete;
@@ -45,6 +43,7 @@ function App() {
         {isResultModalOpen && 
           <ResultModal 
             {...state}
+            callback={() => resetGame()}
           />
         }
       </ResultModalPortal>

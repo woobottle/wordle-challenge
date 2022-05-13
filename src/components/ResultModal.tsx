@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 
-const ResultModalPortal = ({ children }: { children: React.ReactNode }) => {
+export const ResultModalPortal = ({ children }: { children: React.ReactNode }) => {
   const el = document.getElementById('game-result-modal')
   if (!el) throw new Error('game-result-modal not present')
   return ReactDOM.createPortal(children, el);
@@ -10,11 +10,15 @@ const ResultModalPortal = ({ children }: { children: React.ReactNode }) => {
 
 interface Props {
   answer: string;
+  callback?: () => void;
 }
 
-const ResultModal = ({ answer }: Props) => {
+const ResultModal = ({ answer, callback }: Props) => {
   const [open, setOpen] = useState<boolean>(true)
-  const clickHandler = () => setOpen(op => !op);
+  const clickHandler = () => { 
+    setOpen(op => !op); 
+    if (callback) callback();
+  }
 
   return (
     <>
@@ -27,7 +31,7 @@ const ResultModal = ({ answer }: Props) => {
   )
 }
 
-export { ResultModal, ResultModalPortal };
+export default React.memo(ResultModal);
 
 const ResultModalWrapper = styled.div`
   width: 20rem;

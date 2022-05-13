@@ -26,10 +26,11 @@ export type reducerState =
   | { type: "checkComplete"; value: boolean }
   | { type: "addModalMessage"; value: { id: number, message: string }}
   | { type: "removeModalMessage", value: number }
-  | { type: "addRowIndex" };
+  | { type: "addRowIndex" }
+  | { type: "resetGame" };
 
 const useGame = () => {
-  const [state, dispatch] = useReducer(reducer, getIntialState())
+  const [state, dispatch] = useReducer(reducer, getIntialState({}))
   useEffect(() => {
     window.localStorage.setItem('boardStatus', JSON.stringify({
       words: state.words,
@@ -110,8 +111,10 @@ const reducer = (prev: GameState, state: reducerState) => {
       return {
         ...prev,
       };
+    case "resetGame":
+      return getIntialState({ reset: true });
     default:
-      return getIntialState();
+      return getIntialState({});
   }
 };
 
@@ -123,9 +126,11 @@ const getValueFromLocalStorage = (key: string, properties: string[]) => {
     result[property as keyof GameState] = window.localStorage.getItem(key)
       ? JSON.parse(String(window.localStorage.getItem(key)))[`${property}`]
       : undefined;
-  });
+    });
   return result
 }
+
+const removeValueFromLocalStorage = () => { window.localStorage.removeItem("boardStatus") }
 
 const getInitialWordsEvaulated = () => 
   Array.from({ 
@@ -135,7 +140,9 @@ const getInitialWordsEvaulated = () =>
 const getInitialCurrentInput = () =>
   Array.from({ length: WORD_LENGTH }, () => "");
 
-const getIntialState = (): GameState => {
+const getIntialState = ({ reset }: { reset?: true }): GameState => {
+  if (reset) removeValueFromLocalStorage();
+
   const {
     words = Array.from({ length: ROW_LENGTH }, () => ""),
     answer = getAnswer(),
