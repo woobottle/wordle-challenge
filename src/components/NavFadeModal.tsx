@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 
@@ -20,8 +20,6 @@ const NavFadeModal = ({
   message,
   callback,
 }: Props) => {
-  const [open, setOpen] = useState<boolean>(true);
-  
   useEffect(() => {
     const timer = setInterval(() => {
       if(callback) callback()

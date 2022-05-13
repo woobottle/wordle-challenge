@@ -1,4 +1,5 @@
 import './App.css';
+import './assets/css/modal.css';
 import { useMemo, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { GameBoard, KeyBoard } from './components';

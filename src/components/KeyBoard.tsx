@@ -15,12 +15,12 @@ import { currentMessage, getBackgroundColor, getGameStatus, updateWordsEvaulated
 const keyMapper = new Map();
 
 interface Props {
-  words: string[];
-  gameStatus: string;
-  wordsEvaulated: string[][];
-  currentInput: string[],
-  rowIndex: number,
   answer: string,
+  words: string[];
+  rowIndex: number,
+  gameStatus: string;
+  currentInput: string[],
+  wordsEvaulated: string[][];
   dispatch: React.Dispatch<reducerState>
 }
 
@@ -102,8 +102,10 @@ const KeyBoard = ({
       })
       
       clickEnter({ wordsEvaulated: updatedWordsEvaulated })
-      addMessage({ id: Date.now(), message })
       updateGameStatus({ gameStatus })
+      if (gameStatus !== GAME_STATUS.DOING) {
+        addMessage({ id: Date.now(), message })
+      }
       return
     }
 

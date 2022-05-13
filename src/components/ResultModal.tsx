@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
+import styled from "styled-components";
 
 const ResultModalPortal = ({ children }: { children: React.ReactNode }) => {
   const el = document.getElementById('game-result-modal')
@@ -17,9 +18,21 @@ const ResultModal = ({ answer }: Props) => {
 
   return (
     <>
-      {open && <div>result<button onClick={clickHandler}>x</button></div>}
+      {open &&
+        <ResultModalWrapper>
+          <div onClick={clickHandler}>Reset</div>
+        </ResultModalWrapper>
+      }
     </>
   )
 }
 
 export { ResultModal, ResultModalPortal };
+
+const ResultModalWrapper = styled.div`
+  width: 20rem;
+  text-align: center;
+  line-height: 20rem;
+  background-color: black;
+  font-size: -webkit-xxx-large;
+`
