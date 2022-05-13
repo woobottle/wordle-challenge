@@ -27,7 +27,7 @@ const NavFadeModal = ({
       if(callback) callback()
     }, fadeTime)
     return () => clearInterval(timer)
-  }, [setOpen, fadeTime, open, callback])
+  }, [fadeTime, callback])
 
   return (
     <FadeModalWrapper>{message}</FadeModalWrapper>

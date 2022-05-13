@@ -13,11 +13,12 @@ interface Props {
 
 const ResultModal = ({ answer }: Props) => {
   const [open, setOpen] = useState<boolean>(true)
-  console.log(answer)
   const clickHandler = () => setOpen(op => !op);
 
   return (
-    <div>result<button onClick={clickHandler}>x</button></div>
+    <>
+      {open && <div>result<button onClick={clickHandler}>x</button></div>}
+    </>
   )
 }
 
