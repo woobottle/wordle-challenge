@@ -39,10 +39,9 @@ const KeyBoard = ({
     updateGameStatus,
     clickDeleteButton } = useKeyboard({ currentInput, wordsEvaulated, rowIndex, answer, gameStatus, dispatch})
   const { addMessage } = useModalMessage({ dispatch })
-
+  
   const keyBoardMapper = useMemo(() => {
     const flattenWords = words.join('').split('')
-    
     flattenWords.forEach((char, index) => {
       if (char === '') return
       const value = wordsEvaulated[~~(index / WORD_LENGTH)][index % WORD_LENGTH];
@@ -51,7 +50,7 @@ const KeyBoard = ({
       }
       if (value === 'correct') {
         keyMapper.set(char, value);
-      } 
+      }
     })
 
     return keyMapper;
@@ -61,7 +60,7 @@ const KeyBoard = ({
     if(words.includes(word)) return true;
     return false;
   }
-  const checkWordLength = (word: string, wordLength: number) => {
+  const isValidLength = (word: string, wordLength: number) => {
     if (word.length !== wordLength) return false;
     return true;
   };
@@ -76,11 +75,11 @@ const KeyBoard = ({
 
     if (buttonValue === 'enter') {
       const word = currentInput.join("");
-      if (!checkWordLength(word, WORD_LENGTH)) {
+      if (!isValidLength(word, WORD_LENGTH)) {
         addMessage({ id: Date.now(), message: '단어 길이가 잘못되었습니다.'})
         return;
       }
-        
+
       if (!isWordInList(word, WORDS)) {
         addMessage({ id: Date.now(), message: '잘못된 단어입니다.' })
         return;
@@ -101,7 +100,7 @@ const KeyBoard = ({
         gameStatus,
         answer,
       })
-
+      
       clickEnter({ wordsEvaulated: updatedWordsEvaulated })
       addMessage({ id: Date.now(), message })
       updateGameStatus({ gameStatus })
@@ -147,14 +146,13 @@ const KeyRow = styled.div`
 `
 
 const KeyButton = styled.button<{ status?: string }>`
-  color: white;
-  background-color: #818384;
+  border: unset;
   padding: 1rem;
   margin: 0.2rem;
-  font-weight: bold;
-  text-transform: uppercase;
+  color: white;
   cursor: pointer;
+  font-weight: bold;
   border-radius: 0.5rem;
-  border: unset;
-  background-color: ${({status}) => getBackgroundColor(status)};
+  text-transform: uppercase;
+  background-color: ${({ status }) => getBackgroundColor({ status, initial: "#818384"})};
 `

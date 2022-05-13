@@ -8,12 +8,17 @@ interface Props {
   wordsEvaulated: Array<string[]>;
 }
 
-const GameBoard = ({ words, rowIndex, currentInput, wordsEvaulated }: Props) => {
+const GameBoard = ({ 
+  words, 
+  rowIndex, 
+  currentInput, 
+  wordsEvaulated
+}: Props) => {
   return (
     <GameBoardWrapper>
       {words.map((word, wordIndex) => {
         let contents = word.split('');
-        const contentsValidate = wordsEvaulated[rowIndex]
+        const contentsValidate = wordsEvaulated[wordIndex]
         if (wordIndex === rowIndex) {
           contents = currentInput;
         }

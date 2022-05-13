@@ -1,9 +1,9 @@
 import { BOARD_INPUT_STATUS, GAME_STATUS, ROW_LENGTH } from "../constants";
 import { GameState } from "../hooks/useGame";
 
-export const getBackgroundColor = (status: string | undefined) => {
-  if (status === undefined) return "";
-  if (status === "absent") return "#3a3a3c";
+export const getBackgroundColor = ({status, initial} : { status: string | undefined, initial?: string }) => {
+  if (status === "yet" || status === undefined) return initial;
+  if (status === "absent") return "#818384";
   if (status === "mismatch") return "#b59f3b";
   return "#538d4e";
 };

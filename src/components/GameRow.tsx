@@ -7,11 +7,10 @@ interface Props {
 }
 
 const GameRow = ({ contents, contentsValidate }: Props) => {
-  console.log(!contents)
   return (
     <Row>
       {contents.length !== 0
-        ? contents.map((column, columnIndex) => <Column className="box" data-state={contentsValidate[columnIndex]}>{column}</Column>) 
+        ? contents.map((column, columnIndex) => <Column className="box" status={contentsValidate[columnIndex]} data-state={contentsValidate[columnIndex]}>{column}</Column>) 
         : Array.from({ length: 5 }).map((_column, _index) => <Column />)
       }
     </Row>
@@ -24,18 +23,18 @@ const Row = styled.div`
 `
 
 const Column = styled.div<{ status?: string }>`
-  border: 0.1rem solid black;
-  border-color: gray;
-  margin: 0.3rem;
-  text-align: center;
-  box-sizing: border-box;
   width: 4rem;
   height: 4rem;
-  line-height: 4rem;
+  margin: 0.3rem;
   font-size: 2rem;
   font-weight: bold;
+  line-height: 4rem;
+  text-align: center;
+  box-sizing: border-box;
+  border-color: lightgray;
   text-transform: uppercase;
-  background-color: ${(props) => getBackgroundColor(props.status)};
+  border: 0.1rem solid black;
+  background-color: ${({ status }) => getBackgroundColor({ status })};
 `
 
 export default GameRow;
