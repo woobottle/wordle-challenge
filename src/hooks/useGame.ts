@@ -1,11 +1,6 @@
 import { useEffect, useReducer } from "react";
 import { GAME_STATUS, BOARD_INPUT_STATUS, WORDS, WORD_LENGTH, ROW_LENGTH } from "../constants";
 
-export interface ModalMessage {
-  id: number;
-  message: string
-}
-
 export interface GameState {
   answer: string;
   rowIndex: number;
@@ -15,7 +10,6 @@ export interface GameState {
   gameStatus: string;
   isGameComplete: boolean;
   wordsEvaulated: string[][];
-  modalMessages: ModalMessage[];
 }
 
 export type reducerState =
@@ -24,8 +18,6 @@ export type reducerState =
   | { type: "clickLetter"; value: string }
   | { type: "updateGameStatus"; value: string }
   | { type: "checkComplete"; value: boolean }
-  | { type: "addModalMessage"; value: { id: number, message: string }}
-  | { type: "removeModalMessage", value: number }
   | { type: "addRowIndex" }
   | { type: "resetGame" };
 
@@ -49,9 +41,30 @@ const useGame = () => {
     state.isGameComplete
   ])
 
+  const clickEnter = ({ wordsEvaulated }: Pick<GameState, "wordsEvaulated">) => dispatch({ type: "clickEnter", value: wordsEvaulated });
+  
+  const clickDeleteButton = () => dispatch({ type: "clickDeleteButton" });
+
+  const clickLetter = (word: string) => {
+      dispatch({ type: "clickLetter", value: word });
+    };
+
+  const updateGameStatus = ({ gameStatus }: Pick<GameState, "gameStatus">) => {
+    dispatch({ type: "updateGameStatus", value: gameStatus });
+  };
+
+  // resetGame의 위치가 적절치는 않은것 같은데
+  const resetGame = () => dispatch({ type: "resetGame" })
+
   return {
     state,
-    dispatch,
+    actions: {
+      resetGame,
+      clickEnter,
+      clickLetter,
+      updateGameStatus,
+      clickDeleteButton,
+    },
   };
 }
 
@@ -97,16 +110,6 @@ const reducer = (prev: GameState, state: reducerState) => {
         gameStatus: state.value,
         isGameComplete: state.value !== GAME_STATUS.DOING,
       };
-    case "addModalMessage":
-      return {
-        ...prev,
-        modalMessages: [...prev.modalMessages, state.value],
-      };
-    case "removeModalMessage":
-      return {
-        ...prev,
-        modalMessages: prev.modalMessages.filter(message => message.id !== state.value)
-      };
     case "addRowIndex":
       return {
         ...prev,
@@ -132,13 +135,9 @@ const getValueFromLocalStorage = (key: string, properties: string[]) => {
 
 const removeValueFromLocalStorage = () => { window.localStorage.removeItem("boardStatus") }
 
-const getInitialWordsEvaulated = () => 
-  Array.from({ 
-    length: ROW_LENGTH 
-  }, () => Array.from({ length: WORD_LENGTH }, () => BOARD_INPUT_STATUS.YET));
+const getInitialWordsEvaulated = () => Array.from({ length: ROW_LENGTH }, () => Array.from({ length: WORD_LENGTH }, () => BOARD_INPUT_STATUS.YET));
 
-const getInitialCurrentInput = () =>
-  Array.from({ length: WORD_LENGTH }, () => "");
+const getInitialCurrentInput = () => Array.from({ length: WORD_LENGTH }, () => "");
 
 const getIntialState = ({ reset }: { reset?: true }): GameState => {
   if (reset) removeValueFromLocalStorage();
@@ -152,7 +151,6 @@ const getIntialState = ({ reset }: { reset?: true }): GameState => {
     isGameComplete = false,
     wordsEvaulated = getInitialWordsEvaulated(),
     columnIndex = 0,
-    modalMessages = [],
   } = getValueFromLocalStorage("boardStatus", [
     "words",
     "answer",
@@ -170,7 +168,6 @@ const getIntialState = ({ reset }: { reset?: true }): GameState => {
     gameStatus,
     columnIndex,
     currentInput,
-    modalMessages,
     isGameComplete,
     wordsEvaulated,
   };

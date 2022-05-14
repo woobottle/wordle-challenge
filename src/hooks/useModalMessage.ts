@@ -1,26 +1,23 @@
-import { useCallback } from 'react';
-import { ModalMessage, reducerState } from "./useGame";
+import { useState } from 'react';
 
-interface Props {
-  dispatch: React.Dispatch<reducerState>;
+export interface ModalMessage {
+  id: number;
+  message: string
 }
 
-const useModalMessage = ({ dispatch }: Props) => {
-  const addMessage = useCallback((message: ModalMessage) => {
-    dispatch({ type: 'addModalMessage', value: message })
-  }, [dispatch])
+const useModalMessage = () => {
+  const [modalMessages, setModalMessages] = useState<ModalMessage[]>([])
   
-  const removeMessage = useCallback((endTime: number) => {
-    dispatch({ type: "removeModalMessage", value: endTime });
-  }, [dispatch])
-
-  // resetGame의 위치가 적절치는 않은것 같은데
-  const resetGame = useCallback(() => {
-    dispatch({ type: "resetGame" });
-  }, [dispatch])
-
+  const addMessage = (message: ModalMessage) => {
+    setModalMessages(prev => [...prev, message])
+  }
+  
+  const removeMessage = (messageId: number) => {
+    setModalMessages(prev => prev.filter(message => message.id !== messageId))
+  }
+  
   return {
-    resetGame,
+    modalMessages,
     addMessage,
     removeMessage
   }

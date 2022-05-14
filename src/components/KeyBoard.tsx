@@ -8,9 +8,8 @@ import {
   secondLineOfKeyboard, 
   thirdLineOfKeyboard, 
 } from '../constants';
-import { reducerState } from '../hooks/useGame';
-import useKeyboard from '../hooks/useKeyboard';
-import useModalMessage from '../hooks/useModalMessage';
+import { GameState } from '../hooks/useGame';
+import { ModalMessage } from '../hooks/useModalMessage';
 import { currentMessage, getBackgroundColor, getGameStatus, updateWordsEvaulated } from '../utils';
 
 interface Props {
@@ -20,7 +19,11 @@ interface Props {
   gameStatus: string;
   currentInput: string[],
   wordsEvaulated: string[][];
-  dispatch: React.Dispatch<reducerState>
+  clickEnter: ({ wordsEvaulated }: Pick<GameState, "wordsEvaulated">) => void;
+  clickLetter: (word: string) => void;
+  updateGameStatus: ({ gameStatus }: Pick<GameState, "gameStatus">) => void;
+  clickDeleteButton: () => void;
+  addMessage: (message: ModalMessage) => void
 }
 
 const KeyBoard = ({ 
@@ -30,14 +33,12 @@ const KeyBoard = ({
   gameStatus,
   currentInput,
   wordsEvaulated,
-  dispatch
+  clickEnter,
+  clickLetter,
+  updateGameStatus,
+  clickDeleteButton,
+  addMessage
 }: Props) => {
-  const { 
-    clickEnter,
-    clickLetter,
-    updateGameStatus,
-    clickDeleteButton } = useKeyboard({ currentInput, wordsEvaulated, rowIndex, answer, gameStatus, dispatch})
-  const { addMessage } = useModalMessage({ dispatch })
   const keyMapper = new Map();
 
   const keyBoardMapper = useMemo(() => {

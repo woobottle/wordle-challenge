@@ -12,19 +12,22 @@ function App() {
   const [theme, setTheme] = useState('dark')
   const currentTheme = useMemo(() => theme === 'light' ? lightTheme : darkTheme, [theme])
   
-  const { state, dispatch } = useGame()
-  const { removeMessage, resetGame } = useModalMessage({ dispatch })
+  const { state, actions: keyBoardActions } = useGame()
+  const { 
+    modalMessages, 
+    addMessage, 
+    removeMessage } = useModalMessage()
   
   const isResultModalOpen = useMemo(() => { 
-    const isOpen = state.modalMessages.length === 0 && state.isGameComplete;
+    const isOpen = modalMessages.length === 0 && state.isGameComplete;
     return isOpen;
-  }, [state.isGameComplete, state.modalMessages.length])
+  }, [state.isGameComplete, modalMessages])
 
   return (
     <ThemeProvider theme={{ currentTheme, setTheme }}>
       <GlobalStyles />
       <NavModalPortal>
-        {state.modalMessages.reverse().map((message) => 
+        {modalMessages.reverse().map((message) => 
           <NavFadeModal
             fadeTime={3000}
             message={message.message}
@@ -33,17 +36,19 @@ function App() {
         }
       </NavModalPortal>
       <div className="App">
-        <GameBoard {...state} />
+        <GameBoard 
+          {...state} />
         <KeyBoard
           {...state}
-          dispatch={dispatch}
+          {...keyBoardActions}
+          addMessage={addMessage}
         />
       </div>
       <ResultModalPortal>
         {isResultModalOpen && 
           <ResultModal 
             {...state}
-            callback={() => resetGame()}
+            callback={() => keyBoardActions.resetGame()}
           />
         }
       </ResultModalPortal>
