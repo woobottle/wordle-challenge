@@ -53,7 +53,6 @@ const useGame = () => {
     dispatch({ type: "updateGameStatus", value: gameStatus });
   };
 
-  // resetGame의 위치가 적절치는 않은것 같은데
   const resetGame = () => dispatch({ type: "resetGame" })
 
   return {
