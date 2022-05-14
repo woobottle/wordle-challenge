@@ -1,25 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import './assets/css/modal.css';
+import { useMemo, useState } from 'react';
+import { ThemeProvider } from 'styled-components';
+import { GameBoard, KeyBoard, NavFadeModal, NavModalPortal, ResultModal, ResultModalPortal } from './components';
+import { darkTheme, lightTheme } from './assets/styles/theme';
+import GlobalStyles from './assets/styles/GlobalStyles';
+import useGame from './hooks/useGame';
+import useModalMessage from './hooks/useModalMessage';
 
 function App() {
+  const [theme, setTheme] = useState('dark')
+  const currentTheme = useMemo(() => theme === 'light' ? lightTheme : darkTheme, [theme])
+  
+  const { state, actions: keyBoardActions } = useGame()
+  const { 
+    modalMessages, 
+    addMessage, 
+    removeMessage } = useModalMessage()
+  
+  const isResultModalOpen = useMemo(() => { 
+    const isOpen = modalMessages.length === 0 && state.isGameComplete;
+    return isOpen;
+  }, [state.isGameComplete, modalMessages])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={{ currentTheme, setTheme }}>
+      <GlobalStyles />
+      <NavModalPortal>
+        {modalMessages.reverse().map((message) => 
+          <NavFadeModal
+            fadeTime={3000}
+            message={message.message}
+            callback={() => removeMessage(message.id)}
+          />)
+        }
+      </NavModalPortal>
+      <div className="App">
+        <GameBoard 
+          {...state} />
+        <KeyBoard
+          {...state}
+          {...keyBoardActions}
+          addMessage={addMessage}
+        />
+      </div>
+      <ResultModalPortal>
+        {isResultModalOpen && 
+          <ResultModal 
+            {...state}
+            callback={() => keyBoardActions.resetGame()}
+          />
+        }
+      </ResultModalPortal>
+    </ThemeProvider>
   );
 }
 
