@@ -65,7 +65,7 @@ yarn start
     
 2) 지금 작성하고 있는 컴포넌트들이 재사용이 가능할까?   
     => 재사용이 불가능할것 같은데 어떤 방법으로 변경하는 것이 좋을까?    
-    => 의존성 주입, ex) callback function은 외부에서 넣어줌, js에서의 filter 함수 같은 예시   
+    => 의존성 주입, ex) callback function은 외부에서 넣어줌, js에서의 filter 함수, html select tag 같은 예시   
 
 3) 같은 모달의 역할 이지만 두개의 위치가 다르고 쓰임새가 다르므로 
     => 우선 별도의 모달로 생성
