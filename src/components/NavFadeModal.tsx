@@ -18,7 +18,7 @@ export const NavModalPortal = ({ children }: { children: React.ReactNode }) => {
 const NavFadeModal = ({ fadeTime, message, callback }: Props) => {
   useEffect(() => {
     const timer = setInterval(() => {
-      if (callback) callback();
+      callback?.();
     }, fadeTime);
     return () => clearInterval(timer);
   }, [fadeTime, callback]);

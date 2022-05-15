@@ -14,6 +14,7 @@ import {
   currentMessage,
   getBackgroundColor,
   getGameStatus,
+  updateKeyMapper,
   updateWordsEvaulated,
 } from "../utils";
 
@@ -44,24 +45,11 @@ const KeyBoard = ({
   clickDeleteButton,
   addMessage,
 }: Props) => {
-  const keyMapper = new Map();
-
-  const keyBoardMapper = useMemo(() => {
-    const flattenWords = words.join("").split("");
-    flattenWords.forEach((char, index) => {
-      if (char === "") return;
-      const value =
-        wordsEvaulated[~~(index / WORD_LENGTH)][index % WORD_LENGTH];
-      if (!keyMapper.has(char)) {
-        keyMapper.set(char, value);
-      }
-      if (value === "correct") {
-        keyMapper.set(char, value);
-      }
-    });
-
-    return keyMapper;
-  }, [words, wordsEvaulated]);
+  const keyMapper = new Map<string, string>();
+  const keyBoardMapper = useMemo(
+    () => updateKeyMapper({ keyMapper, words, wordsEvaulated }),
+    [words, wordsEvaulated]
+  );
 
   const isWordInList = (word: string, words: string[]) => {
     if (words.includes(word)) return true;

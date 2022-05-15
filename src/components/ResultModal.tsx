@@ -21,7 +21,7 @@ const ResultModal = ({ answer, callback }: Props) => {
   const [open, setOpen] = useState<boolean>(true);
   const clickHandler = () => {
     setOpen((op) => !op);
-    if (callback) callback();
+    callback?.();
   };
 
   return (

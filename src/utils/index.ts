@@ -1,4 +1,9 @@
-import { BOARD_INPUT_STATUS, GAME_STATUS, ROW_LENGTH } from "../constants";
+import {
+  BOARD_INPUT_STATUS,
+  GAME_STATUS,
+  ROW_LENGTH,
+  WORD_LENGTH,
+} from "../constants";
 import { GameState } from "../hooks/useGame";
 interface ArrayWithNumberIndex {
   [key: number]: string;
@@ -78,4 +83,28 @@ export const currentMessage = ({
   };
 
   return messageTable[rowIndex];
+};
+
+export const updateKeyMapper = ({
+  words,
+  keyMapper,
+  wordsEvaulated,
+}: {
+  keyMapper: Map<string, string>;
+  words: string[];
+  wordsEvaulated: string[][];
+}) => {
+  const flattenWords = words.join("").split("");
+  flattenWords.forEach((char, index) => {
+    if (char === "") return;
+    const value = wordsEvaulated[~~(index / WORD_LENGTH)][index % WORD_LENGTH];
+    if (!keyMapper.has(char)) {
+      keyMapper.set(char, value);
+    }
+    if (value === "correct") {
+      keyMapper.set(char, value);
+    }
+  });
+
+  return keyMapper;
 };
