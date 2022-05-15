@@ -1,33 +1,38 @@
-import React, { useMemo } from 'react';
-import styled from 'styled-components';
-import { 
-  WORDS, 
+import React, { useMemo } from "react";
+import styled from "styled-components";
+import {
+  WORDS,
   WORD_LENGTH,
-  GAME_STATUS, 
-  firstLineOfKeyboard, 
-  secondLineOfKeyboard, 
-  thirdLineOfKeyboard, 
-} from '../constants';
-import { GameState } from '../hooks/useGame';
-import { ModalMessage } from '../hooks/useModalMessage';
-import { currentMessage, getBackgroundColor, getGameStatus, updateWordsEvaulated } from '../utils';
+  GAME_STATUS,
+  firstLineOfKeyboard,
+  secondLineOfKeyboard,
+  thirdLineOfKeyboard,
+} from "../constants";
+import { GameState } from "../hooks/useGame";
+import { ModalMessage } from "../hooks/useModalMessage";
+import {
+  currentMessage,
+  getBackgroundColor,
+  getGameStatus,
+  updateWordsEvaulated,
+} from "../utils";
 
 interface Props {
-  answer: string,
+  answer: string;
   words: string[];
-  rowIndex: number,
+  rowIndex: number;
   gameStatus: string;
-  currentInput: string[],
+  currentInput: string[];
   wordsEvaulated: string[][];
   clickEnter: ({ wordsEvaulated }: Pick<GameState, "wordsEvaulated">) => void;
   clickLetter: (word: string) => void;
   updateGameStatus: ({ gameStatus }: Pick<GameState, "gameStatus">) => void;
   clickDeleteButton: () => void;
-  addMessage: (message: ModalMessage) => void
+  addMessage: (message: ModalMessage) => void;
 }
 
-const KeyBoard = ({ 
-  words, 
+const KeyBoard = ({
+  words,
   answer,
   rowIndex,
   gameStatus,
@@ -37,52 +42,56 @@ const KeyBoard = ({
   clickLetter,
   updateGameStatus,
   clickDeleteButton,
-  addMessage
+  addMessage,
 }: Props) => {
   const keyMapper = new Map();
 
   const keyBoardMapper = useMemo(() => {
-    const flattenWords = words.join('').split('')
+    const flattenWords = words.join("").split("");
     flattenWords.forEach((char, index) => {
-      if (char === '') return
-      const value = wordsEvaulated[~~(index / WORD_LENGTH)][index % WORD_LENGTH];
+      if (char === "") return;
+      const value =
+        wordsEvaulated[~~(index / WORD_LENGTH)][index % WORD_LENGTH];
       if (!keyMapper.has(char)) {
         keyMapper.set(char, value);
       }
-      if (value === 'correct') {
+      if (value === "correct") {
         keyMapper.set(char, value);
       }
-    })
-    
+    });
+
     return keyMapper;
   }, [words, wordsEvaulated]);
-  
+
   const isWordInList = (word: string, words: string[]) => {
-    if(words.includes(word)) return true;
+    if (words.includes(word)) return true;
     return false;
-  }
+  };
   const isValidLength = (word: string, wordLength: number) => {
     if (word.length !== wordLength) return false;
     return true;
   };
-  
+
   const clickHandler = (e: React.SyntheticEvent) => {
-    if (!(e.target instanceof HTMLButtonElement) || gameStatus === GAME_STATUS.COMPLETE) {
-      return 
+    if (
+      !(e.target instanceof HTMLButtonElement) ||
+      gameStatus === GAME_STATUS.COMPLETE
+    ) {
+      return;
     }
 
-    const buttonValue = e.target.dataset['key'];
+    const buttonValue = e.target.dataset["key"];
     if (!buttonValue) return;
 
-    if (buttonValue === 'enter') {
+    if (buttonValue === "enter") {
       const word = currentInput.join("");
       if (!isValidLength(word, WORD_LENGTH)) {
-        addMessage({ id: Date.now(), message: '단어 길이가 잘못되었습니다.'})
+        addMessage({ id: Date.now(), message: "단어 길이가 잘못되었습니다." });
         return;
       }
 
       if (!isWordInList(word, WORDS)) {
-        addMessage({ id: Date.now(), message: '잘못된 단어입니다.' })
+        addMessage({ id: Date.now(), message: "잘못된 단어입니다." });
         return;
       }
 
@@ -100,39 +109,63 @@ const KeyBoard = ({
         rowIndex,
         gameStatus,
         answer,
-      })
-      
-      clickEnter({ wordsEvaulated: updatedWordsEvaulated })
-      updateGameStatus({ gameStatus })
+      });
+
+      clickEnter({ wordsEvaulated: updatedWordsEvaulated });
+      updateGameStatus({ gameStatus });
       if (gameStatus !== GAME_STATUS.DOING) {
-        addMessage({ id: Date.now(), message })
+        addMessage({ id: Date.now(), message });
       }
-      return
+      return;
     }
 
-    if (buttonValue === '<') {
-      clickDeleteButton()
-      return
+    if (buttonValue === "<") {
+      clickDeleteButton();
+      return;
     }
 
-    clickLetter(buttonValue)
-    return
-  }
+    clickLetter(buttonValue);
+    return;
+  };
 
   return (
     <KeyBoardWrapper onClick={clickHandler}>
       <KeyRow>
-        {firstLineOfKeyboard.map(word => <KeyButton key={word} data-key={word} status={keyBoardMapper.get(word)}>{word}</KeyButton>)}
+        {firstLineOfKeyboard.map((word) => (
+          <KeyButton
+            key={word}
+            data-key={word}
+            status={keyBoardMapper.get(word)}
+          >
+            {word}
+          </KeyButton>
+        ))}
       </KeyRow>
       <KeyRow>
-        {secondLineOfKeyboard.map(word => <KeyButton key={word} data-key={word} status={keyBoardMapper.get(word)}>{word}</KeyButton>)}
+        {secondLineOfKeyboard.map((word) => (
+          <KeyButton
+            key={word}
+            data-key={word}
+            status={keyBoardMapper.get(word)}
+          >
+            {word}
+          </KeyButton>
+        ))}
       </KeyRow>
       <KeyRow>
-        {thirdLineOfKeyboard.map(word => <KeyButton key={word} data-key={word} status={keyBoardMapper.get(word)}>{word}</KeyButton>)}
+        {thirdLineOfKeyboard.map((word) => (
+          <KeyButton
+            key={word}
+            data-key={word}
+            status={keyBoardMapper.get(word)}
+          >
+            {word}
+          </KeyButton>
+        ))}
       </KeyRow>
     </KeyBoardWrapper>
-  )
-}
+  );
+};
 
 export default KeyBoard;
 
@@ -141,12 +174,12 @@ const KeyBoardWrapper = styled.div`
   display: flex;
   justify-content: center;
   flex-direction: column;
-`
+`;
 
 const KeyRow = styled.div`
   margin: 0 auto;
   display: flex;
-`
+`;
 
 const KeyButton = styled.button<{ status?: string }>`
   border: unset;
@@ -157,5 +190,6 @@ const KeyButton = styled.button<{ status?: string }>`
   font-weight: bold;
   border-radius: 0.5rem;
   text-transform: uppercase;
-  background-color: ${({ status }) => getBackgroundColor({ status, initial: "#818384"})};
-`
+  background-color: ${({ status }) =>
+    getBackgroundColor({ status, initial: "#818384" })};
+`;
