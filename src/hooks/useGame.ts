@@ -1,5 +1,11 @@
 import { useEffect, useReducer } from "react";
-import { GAME_STATUS, BOARD_INPUT_STATUS, WORDS, WORD_LENGTH, ROW_LENGTH } from "../constants";
+import {
+  GAME_STATUS,
+  BOARD_INPUT_STATUS,
+  WORDS,
+  WORD_LENGTH,
+  ROW_LENGTH,
+} from "../constants";
 
 export interface GameState {
   answer: string;
@@ -22,38 +28,42 @@ export type reducerState =
   | { type: "resetGame" };
 
 const useGame = () => {
-  const [state, dispatch] = useReducer(reducer, getIntialState({}))
+  const [state, dispatch] = useReducer(reducer, getIntialState({}));
   useEffect(() => {
-    window.localStorage.setItem('boardStatus', JSON.stringify({
-      words: state.words,
-      answer: state.answer,
-      rowIndex: state.rowIndex,
-      gameStatus: state.gameStatus,
-      isGameComplete: state.isGameComplete,
-      wordsEvaulated: state.wordsEvaulated,
-    }))
+    window.localStorage.setItem(
+      "boardStatus",
+      JSON.stringify({
+        words: state.words,
+        answer: state.answer,
+        rowIndex: state.rowIndex,
+        gameStatus: state.gameStatus,
+        isGameComplete: state.isGameComplete,
+        wordsEvaulated: state.wordsEvaulated,
+      })
+    );
   }, [
-    state.words, 
-    state.answer, 
-    state.rowIndex, 
-    state.gameStatus, 
-    state.wordsEvaulated, 
-    state.isGameComplete
-  ])
+    state.words,
+    state.answer,
+    state.rowIndex,
+    state.gameStatus,
+    state.wordsEvaulated,
+    state.isGameComplete,
+  ]);
 
-  const clickEnter = ({ wordsEvaulated }: Pick<GameState, "wordsEvaulated">) => dispatch({ type: "clickEnter", value: wordsEvaulated });
-  
+  const clickEnter = ({ wordsEvaulated }: Pick<GameState, "wordsEvaulated">) =>
+    dispatch({ type: "clickEnter", value: wordsEvaulated });
+
   const clickDeleteButton = () => dispatch({ type: "clickDeleteButton" });
 
   const clickLetter = (word: string) => {
-      dispatch({ type: "clickLetter", value: word });
-    };
+    dispatch({ type: "clickLetter", value: word });
+  };
 
   const updateGameStatus = ({ gameStatus }: Pick<GameState, "gameStatus">) => {
     dispatch({ type: "updateGameStatus", value: gameStatus });
   };
 
-  const resetGame = () => dispatch({ type: "resetGame" })
+  const resetGame = () => dispatch({ type: "resetGame" });
 
   return {
     state,
@@ -65,7 +75,7 @@ const useGame = () => {
       clickDeleteButton,
     },
   };
-}
+};
 
 const reducer = (prev: GameState, state: reducerState) => {
   switch (state.type) {
@@ -123,20 +133,26 @@ const reducer = (prev: GameState, state: reducerState) => {
 const getAnswer = () => WORDS[~~(Math.random() * WORDS.length)];
 
 const getValueFromLocalStorage = (key: string, properties: string[]) => {
-  const result: { [key: string]: any } = {}
+  const result: { [key: string]: any } = {};
   properties.forEach((property) => {
     result[property as keyof GameState] = window.localStorage.getItem(key)
       ? JSON.parse(String(window.localStorage.getItem(key)))[`${property}`]
       : undefined;
-    });
-  return result
-}
+  });
+  return result;
+};
 
-const removeValueFromLocalStorage = () => { window.localStorage.removeItem("boardStatus") }
+const removeValueFromLocalStorage = () => {
+  window.localStorage.removeItem("boardStatus");
+};
 
-const getInitialWordsEvaulated = () => Array.from({ length: ROW_LENGTH }, () => Array.from({ length: WORD_LENGTH }, () => BOARD_INPUT_STATUS.YET));
+const getInitialWordsEvaulated = () =>
+  Array.from({ length: ROW_LENGTH }, () =>
+    Array.from({ length: WORD_LENGTH }, () => BOARD_INPUT_STATUS.YET)
+  );
 
-const getInitialCurrentInput = () => Array.from({ length: WORD_LENGTH }, () => "");
+const getInitialCurrentInput = () =>
+  Array.from({ length: WORD_LENGTH }, () => "");
 
 const getIntialState = ({ reset }: { reset?: true }): GameState => {
   if (reset) removeValueFromLocalStorage();
@@ -183,6 +199,5 @@ const replacePrevInputByColumnIndex = ({
     }
     return el;
   });
-
 
 export default useGame;

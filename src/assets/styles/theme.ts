@@ -1,4 +1,4 @@
-import { deskTopSize, tabletSize, mobileSize, maxWidth } from '../../constants'
+import { deskTopSize, tabletSize, mobileSize, maxWidth } from "../../constants";
 
 interface deviceType {
   desktop: string;
@@ -19,12 +19,12 @@ const theme: ThemeInterface = {
   device: {
     desktop: deskTopSize,
     tablet: tabletSize,
-    mobile: mobileSize
-  }, 
+    mobile: mobileSize,
+  },
   size: {
     maxWidth,
-  }
-} 
+  },
+};
 
 export interface colorTheme {
   bgColor: string;
@@ -43,5 +43,5 @@ const dark: colorTheme = {
 
 export type modeTheme = ThemeInterface & colorTheme;
 
-export const lightTheme = {...light, ...theme}
-export const darkTheme = {...dark, ...theme}
+export const lightTheme = { ...light, ...theme };
+export const darkTheme = { ...dark, ...theme };

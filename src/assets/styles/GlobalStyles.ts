@@ -1,5 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-import reset from 'styled-reset';
+import reset from "styled-reset";
 import { colorTheme } from "./theme";
 
 interface themeProps {
