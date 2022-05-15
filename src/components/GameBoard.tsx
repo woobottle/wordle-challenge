@@ -17,14 +17,11 @@ const GameBoard = ({
   return (
     <GameBoardWrapper>
       {words.map((word, wordIndex) => {
-        let contents = word.split("");
-        const contentsValidate = wordsEvaulated[wordIndex];
-        if (wordIndex === rowIndex) {
-          contents = currentInput;
-        }
-
         return (
-          <GameRow contents={contents} contentsValidate={contentsValidate} />
+          <GameRow
+            contents={wordIndex === rowIndex ? currentInput : word.split("")}
+            contentsValidate={wordsEvaulated[wordIndex]}
+          />
         );
       })}
     </GameBoardWrapper>
