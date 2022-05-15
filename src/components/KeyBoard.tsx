@@ -72,7 +72,7 @@ const KeyBoard = ({
     return true;
   };
 
-  const clickHandler = (e: React.SyntheticEvent) => {
+  const clickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
       !(e.target instanceof HTMLButtonElement) ||
       gameStatus === GAME_STATUS.COMPLETE
