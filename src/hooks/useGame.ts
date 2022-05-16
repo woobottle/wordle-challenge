@@ -5,6 +5,8 @@ import {
   WORDS,
   WORD_LENGTH,
   ROW_LENGTH,
+  REDUCER_ACTION_TYPE,
+  LOCAL_STORAGE_KEY_VALUE,
 } from "../constants";
 
 export interface GameState {
@@ -18,20 +20,73 @@ export interface GameState {
   wordsEvaulated: string[][];
 }
 
-export type reducerState =
-  | { type: "clickEnter"; value: string[][] }
-  | { type: "clickDeleteButton" }
-  | { type: "clickLetter"; value: string }
-  | { type: "updateGameStatus"; value: string }
-  | { type: "checkComplete"; value: boolean }
-  | { type: "addRowIndex" }
-  | { type: "resetGame" };
+type reducerState =
+  | { type: typeof REDUCER_ACTION_TYPE.CLICK_ENTER; value: string[][] }
+  | { type: typeof REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON }
+  | { type: typeof REDUCER_ACTION_TYPE.CLICK_LETTER; value: string }
+  | { type: typeof REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS; value: string }
+  | { type: typeof REDUCER_ACTION_TYPE.CHECK_COMPLETE; value: boolean }
+  | { type: typeof REDUCER_ACTION_TYPE.ADD_ROW_INDEX }
+  | { type: typeof REDUCER_ACTION_TYPE.RESET_GAME };
+
+const reducer = (prev: GameState, state: reducerState) => {
+  switch (state.type) {
+    case REDUCER_ACTION_TYPE.CLICK_ENTER:
+      return {
+        ...prev,
+        columnIndex: 0,
+        wordsEvaulated: state.value,
+        currentInput: getInitialCurrentInput(),
+        words: prev.words.map((word, index) => {
+          if (index === prev.rowIndex) {
+            return prev.currentInput.join("");
+          }
+          return word;
+        }),
+      };
+    case REDUCER_ACTION_TYPE.CLICK_LETTER:
+      return {
+        ...prev,
+        columnIndex: Math.min(prev.columnIndex + 1, WORD_LENGTH),
+        currentInput: replacePrevInputByColumnIndex({
+          currentInput: prev.currentInput,
+          columnIndex: prev.columnIndex,
+          value: state.value,
+        }),
+      };
+    case REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON:
+      return {
+        ...prev,
+        columnIndex: Math.max(prev.columnIndex - 1, 0),
+        currentInput: replacePrevInputByColumnIndex({
+          currentInput: prev.currentInput,
+          columnIndex: prev.columnIndex - 1,
+          value: "",
+        }),
+      };
+    case REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS:
+      return {
+        ...prev,
+        rowIndex: prev.rowIndex + 1,
+        gameStatus: state.value,
+        isGameComplete: state.value !== GAME_STATUS.DOING,
+      };
+    case REDUCER_ACTION_TYPE.ADD_ROW_INDEX:
+      return {
+        ...prev,
+      };
+    case REDUCER_ACTION_TYPE.RESET_GAME:
+      return getIntialState({ reset: true });
+    default:
+      return getIntialState({});
+  }
+};
 
 const useGame = () => {
   const [state, dispatch] = useReducer(reducer, getIntialState({}));
   useEffect(() => {
     window.localStorage.setItem(
-      "boardStatus",
+      LOCAL_STORAGE_KEY_VALUE,
       JSON.stringify({
         words: state.words,
         answer: state.answer,
@@ -51,19 +106,23 @@ const useGame = () => {
   ]);
 
   const clickEnter = ({ wordsEvaulated }: Pick<GameState, "wordsEvaulated">) =>
-    dispatch({ type: "clickEnter", value: wordsEvaulated });
+    dispatch({ type: REDUCER_ACTION_TYPE.CLICK_ENTER, value: wordsEvaulated });
 
-  const clickDeleteButton = () => dispatch({ type: "clickDeleteButton" });
+  const clickDeleteButton = () =>
+    dispatch({ type: REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON });
 
   const clickLetter = (word: string) => {
-    dispatch({ type: "clickLetter", value: word });
+    dispatch({ type: REDUCER_ACTION_TYPE.CLICK_LETTER, value: word });
   };
 
   const updateGameStatus = ({ gameStatus }: Pick<GameState, "gameStatus">) => {
-    dispatch({ type: "updateGameStatus", value: gameStatus });
+    dispatch({
+      type: REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS,
+      value: gameStatus,
+    });
   };
 
-  const resetGame = () => dispatch({ type: "resetGame" });
+  const resetGame = () => dispatch({ type: REDUCER_ACTION_TYPE.RESET_GAME });
 
   return {
     state,
@@ -75,59 +134,6 @@ const useGame = () => {
       clickDeleteButton,
     },
   };
-};
-
-const reducer = (prev: GameState, state: reducerState) => {
-  switch (state.type) {
-    case "clickEnter":
-      return {
-        ...prev,
-        columnIndex: 0,
-        wordsEvaulated: state.value,
-        currentInput: getInitialCurrentInput(),
-        words: prev.words.map((word, index) => {
-          if (index === prev.rowIndex) {
-            return prev.currentInput.join("");
-          }
-          return word;
-        }),
-      };
-    case "clickLetter":
-      return {
-        ...prev,
-        columnIndex: Math.min(prev.columnIndex + 1, WORD_LENGTH),
-        currentInput: replacePrevInputByColumnIndex({
-          currentInput: prev.currentInput,
-          columnIndex: prev.columnIndex,
-          value: state.value,
-        }),
-      };
-    case "clickDeleteButton":
-      return {
-        ...prev,
-        columnIndex: Math.max(prev.columnIndex - 1, 0),
-        currentInput: replacePrevInputByColumnIndex({
-          currentInput: prev.currentInput,
-          columnIndex: prev.columnIndex - 1,
-          value: "",
-        }),
-      };
-    case "updateGameStatus":
-      return {
-        ...prev,
-        rowIndex: prev.rowIndex + 1,
-        gameStatus: state.value,
-        isGameComplete: state.value !== GAME_STATUS.DOING,
-      };
-    case "addRowIndex":
-      return {
-        ...prev,
-      };
-    case "resetGame":
-      return getIntialState({ reset: true });
-    default:
-      return getIntialState({});
-  }
 };
 
 const getAnswer = () => WORDS[~~(Math.random() * WORDS.length)];
@@ -143,7 +149,7 @@ const getValueFromLocalStorage = (key: string, properties: string[]) => {
 };
 
 const removeValueFromLocalStorage = () => {
-  window.localStorage.removeItem("boardStatus");
+  window.localStorage.removeItem(LOCAL_STORAGE_KEY_VALUE);
 };
 
 const getInitialWordsEvaulated = () =>
@@ -166,7 +172,7 @@ const getIntialState = ({ reset }: { reset?: true }): GameState => {
     isGameComplete = false,
     wordsEvaulated = getInitialWordsEvaulated(),
     columnIndex = 0,
-  } = getValueFromLocalStorage("boardStatus", [
+  } = getValueFromLocalStorage(LOCAL_STORAGE_KEY_VALUE, [
     "words",
     "answer",
     "rowIndex",

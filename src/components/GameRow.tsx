@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { WORD_LENGTH } from "../constants";
 import { getBackgroundColor } from "../utils";
 
 interface Props {
@@ -19,7 +20,7 @@ const GameRow = ({ contents, contentsValidate }: Props) => {
               {column}
             </Column>
           ))
-        : Array.from({ length: 5 }).map((_column, _index) => <Column />)}
+        : Array.from({ length: WORD_LENGTH }).map(() => <Column />)}
     </Row>
   );
 };

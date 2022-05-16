@@ -7,6 +7,7 @@ import {
   firstLineOfKeyboard,
   secondLineOfKeyboard,
   thirdLineOfKeyboard,
+  MESSAGE,
 } from "../constants";
 import { GameState } from "../hooks/useGame";
 import { ModalMessage } from "../hooks/useModalMessage";
@@ -74,12 +75,12 @@ const KeyBoard = ({
     if (buttonValue === "enter") {
       const word = currentInput.join("");
       if (!isValidLength(word, WORD_LENGTH)) {
-        addMessage({ id: Date.now(), message: "단어 길이가 잘못되었습니다." });
+        addMessage({ id: Date.now(), message: MESSAGE.WRONG_LENGTH });
         return;
       }
 
       if (!isWordInList(word, WORDS)) {
-        addMessage({ id: Date.now(), message: "잘못된 단어입니다." });
+        addMessage({ id: Date.now(), message: MESSAGE.WRONG_ANSWER });
         return;
       }
 
