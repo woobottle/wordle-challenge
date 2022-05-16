@@ -1,3 +1,4 @@
+import { REACTIONS } from "./../constants/reactions";
 import {
   BOARD_INPUT_STATUS,
   GAME_STATUS,
@@ -16,9 +17,9 @@ export const getBackgroundColor = ({
   status: string | undefined;
   initial?: string;
 }) => {
-  if (status === "yet" || status === undefined) return initial;
-  if (status === "absent") return "#3a3a3c";
-  if (status === "mismatch") return "#b59f3b";
+  if (status === BOARD_INPUT_STATUS.YET || status === undefined) return initial;
+  if (status === BOARD_INPUT_STATUS.ABSENT) return "#3a3a3c";
+  if (status === BOARD_INPUT_STATUS.MISMATCH) return "#b59f3b";
   return "#538d4e";
 };
 
@@ -74,12 +75,12 @@ export const currentMessage = ({
   }
 
   const messageTable: ArrayWithNumberIndex = {
-    0: "Genius",
-    1: "Magnificent",
-    2: "Impressive",
-    3: "Splendid",
-    4: "Great",
-    5: "Phew",
+    0: REACTIONS.GENIUS,
+    1: REACTIONS.MAGNIFICENT,
+    2: REACTIONS.IMPRESSIVE,
+    3: REACTIONS.SPLENDID,
+    4: REACTIONS.GREAT,
+    5: REACTIONS.PHEW,
   };
 
   return messageTable[rowIndex];
