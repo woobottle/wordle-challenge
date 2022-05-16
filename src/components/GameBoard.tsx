@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import GameRow from './GameRow';
+import styled from "styled-components";
+import GameRow from "./GameRow";
 
 interface Props {
   words: string[];
@@ -8,26 +8,25 @@ interface Props {
   wordsEvaulated: Array<string[]>;
 }
 
-const GameBoard = ({ 
-  words, 
-  rowIndex, 
-  currentInput, 
-  wordsEvaulated
+const GameBoard = ({
+  words,
+  rowIndex,
+  currentInput,
+  wordsEvaulated,
 }: Props) => {
   return (
     <GameBoardWrapper>
       {words.map((word, wordIndex) => {
-        let contents = word.split('');
-        const contentsValidate = wordsEvaulated[wordIndex]
-        if (wordIndex === rowIndex) {
-          contents = currentInput;
-        }
-        
-        return <GameRow contents={contents} contentsValidate={contentsValidate} />
+        return (
+          <GameRow
+            contents={wordIndex === rowIndex ? currentInput : word.split("")}
+            contentsValidate={wordsEvaulated[wordIndex]}
+          />
+        );
       })}
     </GameBoardWrapper>
-  )
-}
+  );
+};
 
 export default GameBoard;
 
@@ -36,4 +35,4 @@ const GameBoardWrapper = styled.div`
   justify-content: center;
   flex-direction: column;
   margin-top: 10rem;
-`
+`;

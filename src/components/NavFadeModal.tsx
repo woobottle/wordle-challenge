@@ -10,27 +10,21 @@ interface Props {
 }
 
 export const NavModalPortal = ({ children }: { children: React.ReactNode }) => {
-  const el = document.getElementById('game-nav-modal')
-  if (!el) throw new Error('game-nav-modal not present')
+  const el = document.getElementById("game-nav-modal");
+  if (!el) throw new Error("game-nav-modal not present");
   return ReactDOM.createPortal(children, el);
-}
+};
 
-const NavFadeModal = ({ 
-  fadeTime, 
-  message,
-  callback,
-}: Props) => {
+const NavFadeModal = ({ fadeTime, message, callback }: Props) => {
   useEffect(() => {
     const timer = setInterval(() => {
-      if(callback) callback()
-    }, fadeTime)
-    return () => clearInterval(timer)
-  }, [fadeTime, callback])
+      callback?.();
+    }, fadeTime);
+    return () => clearInterval(timer);
+  }, [fadeTime, callback]);
 
-  return (
-    <FadeModalWrapper>{message}</FadeModalWrapper>
-  )
-}
+  return <FadeModalWrapper>{message}</FadeModalWrapper>;
+};
 
 const FadeModalWrapper = styled.div<{ time?: number }>`
   @keyframes fadeout {

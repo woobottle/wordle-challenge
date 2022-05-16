@@ -1,26 +1,28 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export interface ModalMessage {
   id: number;
-  message: string
+  message: string;
 }
 
 const useModalMessage = () => {
-  const [modalMessages, setModalMessages] = useState<ModalMessage[]>([])
-  
+  const [modalMessages, setModalMessages] = useState<ModalMessage[]>([]);
+
   const addMessage = (message: ModalMessage) => {
-    setModalMessages(prev => [...prev, message])
-  }
-  
+    setModalMessages((prev: ModalMessage[]) => [...prev, message]);
+  };
+
   const removeMessage = (messageId: number) => {
-    setModalMessages(prev => prev.filter(message => message.id !== messageId))
-  }
-  
+    setModalMessages((prev) =>
+      prev.filter((message: ModalMessage) => message.id !== messageId)
+    );
+  };
+
   return {
     modalMessages,
     addMessage,
-    removeMessage
-  }
+    removeMessage,
+  };
 };
 
 export default useModalMessage;
