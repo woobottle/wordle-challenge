@@ -14,6 +14,8 @@ const GameRow = ({ contents, contentsValidate }: Props) => {
         ? contents.map((column, columnIndex) => (
             <Column
               className="box"
+              animated={!!column}
+              columnIndex={columnIndex}
               status={contentsValidate[columnIndex]}
               data-state={contentsValidate[columnIndex]}
             >
@@ -30,7 +32,11 @@ const Row = styled.div`
   margin: 0 auto;
 `;
 
-const Column = styled.div<{ status?: string }>`
+const Column = styled.div<{
+  status?: string;
+  animated?: boolean;
+  columnIndex?: number;
+}>`
   width: 4rem;
   height: 4rem;
   margin: 0.3rem;
@@ -42,7 +48,32 @@ const Column = styled.div<{ status?: string }>`
   border-color: lightgray;
   text-transform: uppercase;
   border: 0.1rem solid black;
+  @keyframes rotateColumn {
+    0% {
+      -webkit-transform: rotateX(0);
+    }
+    50% {
+      -webkit-transform: rotateX(-90deg);
+    }
+    100% {
+      -webkit-transform: rotateX(0);
+    }
+  }
+
   background-color: ${({ status }) => getBackgroundColor({ status })};
+
+  @keyframes scaling {
+    50% {
+      -webkit-transform: scale(1.2);
+    }
+    100% {
+      -webkit-transform: scale(1);
+    }
+  }
+
+  animation: ${({ animated }) => {
+    return animated ? "scaling 0.5s;" : "";
+  }};
 `;
 
 export default GameRow;
