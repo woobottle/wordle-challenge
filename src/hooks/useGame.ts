@@ -7,7 +7,9 @@ import {
   ROW_LENGTH,
   REDUCER_ACTION_TYPE,
   LOCAL_STORAGE_KEY_VALUE,
+  MESSAGE,
 } from "../constants";
+import { currentMessage, getGameStatus, updateWordsEvaulated } from "../utils";
 
 export interface GameState {
   answer: string;
@@ -124,16 +126,69 @@ const useGame = () => {
 
   const resetGame = () => dispatch({ type: REDUCER_ACTION_TYPE.RESET_GAME });
 
+  const handleKeyUp = ({ buttonValue }: { buttonValue: string }) => {
+    if (buttonValue === "enter" || buttonValue === "Enter") {
+      const word = state.currentInput.join("");
+      if (!isValidLength(word, WORD_LENGTH)) {
+        // addMessage({ id: Date.now(), message: MESSAGE.WRONG_LENGTH });
+        return;
+      }
+
+      if (!isWordInList(word, WORDS)) {
+        // addMessage({ id: Date.now(), message: MESSAGE.WRONG_ANSWER });
+        return;
+      }
+
+      const updatedWordsEvaulated = updateWordsEvaulated({
+        answer: state.answer,
+        rowIndex: state.rowIndex,
+        currentInput: state.currentInput,
+        wordsEvaulated: state.wordsEvaulated,
+      });
+      const gameStatus = getGameStatus({
+        rowIndex: state.rowIndex,
+        wordsEvaulated: updatedWordsEvaulated,
+      });
+      const message = currentMessage({
+        rowIndex: state.rowIndex,
+        gameStatus: state.gameStatus,
+        answer: state.answer,
+      });
+
+      clickEnter({ wordsEvaulated: updatedWordsEvaulated });
+      updateGameStatus({ gameStatus });
+      if (gameStatus !== GAME_STATUS.DOING) {
+        // addMessage({ id: Date.now(), message });
+      }
+      return;
+    }
+
+    if (buttonValue === "<" || buttonValue === "Backspace") {
+      clickDeleteButton();
+      return;
+    }
+
+    clickLetter(buttonValue);
+    return;
+  };
+
   return {
     state,
     actions: {
       resetGame,
-      clickEnter,
-      clickLetter,
+      handleKeyUp,
       updateGameStatus,
-      clickDeleteButton,
     },
   };
+};
+
+const isWordInList = (word: string, words: string[]) => {
+  if (words.includes(word)) return true;
+  return false;
+};
+const isValidLength = (word: string, wordLength: number) => {
+  if (word.length !== wordLength) return false;
+  return true;
 };
 
 const getAnswer = () => WORDS[~~(Math.random() * WORDS.length)];
