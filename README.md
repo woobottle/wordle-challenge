@@ -149,6 +149,12 @@ https://wordle-challenge-psi.vercel.app/
 ---
 
 13) 같은 성격의 string 값들은 전부 객체 내부의 프로퍼티로 이동, 오타로 인한 휴먼 에러를 방지하고자 하였다.
+
+---
+
+14) 키보드 컴포넌트에서 비즈니스 로직 분리, 키보드 입력 동작 추가 => modal Message와 연관성이 생기는 부분은 숙제이다. 그러나 컴포넌트는 가벼워짐, 애니메이션 동작 추가도 숙제
+하나씩 넘어가야 하는 상황 -> animation delay 적용해보자
+
 ## 이번 pr에서 받고 싶은 내용들 
 1) useKeyboard, useModalMessage hook의 경우 쓰임새가 적합한지 궁금하니다. 
   dispatch를 전달받아 커스텀 함수를 반환해주는 역할의 훅입니다.

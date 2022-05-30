@@ -46,11 +46,11 @@ const KeyBoard = ({
   };
 
   useEffect(() => {
-    const eventListener = (event: KeyboardEvent) =>
+    const keyUpEvent = (event: KeyboardEvent) =>
       handleKeyUp({ buttonValue: event.key });
 
-    addEventListener("keyup", eventListener);
-    return () => removeEventListener("keyup", eventListener);
+    addEventListener("keyup", keyUpEvent);
+    return () => removeEventListener("keyup", keyUpEvent);
   }, [handleKeyUp]);
 
   return (

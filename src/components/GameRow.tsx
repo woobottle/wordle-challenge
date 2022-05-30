@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { WORD_LENGTH } from "../constants";
 import { getBackgroundColor } from "../utils";
 
@@ -48,6 +48,8 @@ const Column = styled.div<{
   border-color: lightgray;
   text-transform: uppercase;
   border: 0.1rem solid black;
+  --background-color: ${({ status }) => getBackgroundColor({ status })};
+
   @keyframes rotateColumn {
     0% {
       -webkit-transform: rotateX(0);
@@ -57,10 +59,15 @@ const Column = styled.div<{
     }
     100% {
       -webkit-transform: rotateX(0);
+      background-color: var(--background-color);
     }
   }
 
-  background-color: ${({ status }) => getBackgroundColor({ status })};
+  animation: ${({ status, columnIndex = 0 }) => {
+    return status && status !== "yet"
+      ? `rotateColumn 1s ease-in ${columnIndex * 0.2}s forwards`
+      : "";
+  }};
 
   @keyframes scaling {
     50% {
@@ -71,8 +78,8 @@ const Column = styled.div<{
     }
   }
 
-  animation: ${({ animated }) => {
-    return animated ? "scaling 0.5s;" : "";
+  animation: ${({ animated, status }) => {
+    return animated && status === "yet" ? "scaling 0.5s;" : "";
   }};
 `;
 
