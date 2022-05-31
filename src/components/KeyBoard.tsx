@@ -6,7 +6,6 @@ import {
   secondLineOfKeyboard,
   thirdLineOfKeyboard,
 } from "../constants";
-import { ModalMessage } from "../hooks/useModalMessage";
 import { getBackgroundColor, updateKeyMapper } from "../utils";
 
 interface Props {
@@ -14,11 +13,10 @@ interface Props {
   words: string[];
   rowIndex: number;
   gameStatus: string;
-  currentInput: string[];
   wordsEvaulated: string[][];
   handleKeyUp: ({ buttonValue }: { buttonValue: string }) => void;
-  addMessage: (message: ModalMessage) => void;
 }
+const keyMapper = new Map<string, string>();
 
 const KeyBoard = ({
   words,
@@ -26,11 +24,10 @@ const KeyBoard = ({
   wordsEvaulated,
   handleKeyUp,
 }: Props) => {
-  const keyMapper = new Map<string, string>();
-  const keyBoardMapper = useMemo(
-    () => updateKeyMapper({ keyMapper, words, wordsEvaulated }),
-    [words, wordsEvaulated]
-  );
+  const keyBoardMapper = useMemo(() => {
+    keyMapper.clear();
+    return updateKeyMapper({ keyMapper, words, wordsEvaulated });
+  }, [words, wordsEvaulated]);
 
   const clickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
     if (

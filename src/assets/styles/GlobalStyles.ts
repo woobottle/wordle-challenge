@@ -12,8 +12,8 @@ const GlobalStyles = createGlobalStyle<{ theme: themeProps }>`
   
   body {
     font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-    background-color: ${({ theme }) => theme?.currentTheme.bgColor};
-    color: ${({ theme }) => theme?.currentTheme.textColor};
+    background-color: #202124;
+    color: #eff0f5;
     font-size: 16px;
   }
 

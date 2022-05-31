@@ -69,7 +69,7 @@ const Column = styled.div<{
       : "";
   }};
 
-  @keyframes scaling {
+  @keyframes bounce {
     50% {
       -webkit-transform: scale(1.2);
     }
@@ -79,7 +79,7 @@ const Column = styled.div<{
   }
 
   animation: ${({ animated, status }) => {
-    return animated && status === "yet" ? "scaling 0.5s;" : "";
+    return animated && status === "yet" ? "bounce 0.5s;" : "";
   }};
 `;
 

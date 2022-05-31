@@ -9,28 +9,22 @@ import {
   ResultModal,
   ResultModalPortal,
 } from "./components";
-import { darkTheme, lightTheme } from "./assets/styles/theme";
 import GlobalStyles from "./assets/styles/GlobalStyles";
 import useGame from "./hooks/useGame";
 import useModalMessage from "./hooks/useModalMessage";
+import useCurrentInput from "./hooks/useCurrentInput";
 
 function App() {
-  const [theme, setTheme] = useState("dark");
-  const currentTheme = useMemo(
-    () => (theme === "light" ? lightTheme : darkTheme),
-    [theme]
-  );
-
-  const { state, actions: keyBoardActions } = useGame();
+  const { gameState, gameActions } = useGame();
   const { modalMessages, addMessage, removeMessage } = useModalMessage();
 
   const isResultModalOpen = useMemo(() => {
-    const isOpen = modalMessages.length === 0 && state.isGameComplete;
+    const isOpen = modalMessages.length === 0 && gameState.isGameComplete;
     return isOpen;
-  }, [state.isGameComplete, modalMessages]);
+  }, [gameState.isGameComplete, modalMessages]);
 
   return (
-    <ThemeProvider theme={{ currentTheme, setTheme }}>
+    <ThemeProvider theme={{}}>
       <GlobalStyles />
       <NavModalPortal>
         {modalMessages.reverse().map((message) => (
@@ -42,14 +36,14 @@ function App() {
         ))}
       </NavModalPortal>
       <div className="App">
-        <GameBoard {...state} />
-        <KeyBoard {...state} {...keyBoardActions} addMessage={addMessage} />
+        <GameBoard {...gameState} />
+        <KeyBoard {...gameState} {...gameActions} />
       </div>
       <ResultModalPortal>
         {isResultModalOpen && (
           <ResultModal
-            {...state}
-            callback={() => keyBoardActions.resetGame()}
+            {...gameState}
+            callback={() => gameActions.resetGame()}
           />
         )}
       </ResultModalPortal>

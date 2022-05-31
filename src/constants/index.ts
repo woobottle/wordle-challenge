@@ -7,14 +7,17 @@ export const GAME_STATUS = {
   COMPLETE: "complete",
 } as const; // readonly 역할
 
-export const REDUCER_ACTION_TYPE = {
+export const GAME_REDUCER_ACTION_TYPE = {
+  UPDATE_GAME_STATUS: "updateGameStatus",
+  NEXT_TURN: "next_turn",
+  RESET_GAME: "resetGame",
+  CHECK_COMPLETE: "checkComplete",
+} as const;
+
+export const INPUT_REDUCER_ACTION_TYPE = {
   CLICK_ENTER: "clickEnter",
   CLICK_DELTE_BUTTON: "clickDeleteButton",
   CLICK_LETTER: "clickLetter",
-  UPDATE_GAME_STATUS: "updateGameStatus",
-  ADD_ROW_INDEX: "addRowIndex",
-  RESET_GAME: "resetGame",
-  CHECK_COMPLETE: "checkComplete",
 } as const;
 
 export const BOARD_INPUT_STATUS = {

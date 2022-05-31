@@ -13,42 +13,58 @@ import { currentMessage, getGameStatus, updateWordsEvaulated } from "../utils";
 
 export interface GameState {
   answer: string;
-  rowIndex: number;
-  columnIndex: number;
+  turn: number;
   words: string[];
-  currentInput: string[];
   gameStatus: string;
   isGameComplete: boolean;
   wordsEvaulated: string[][];
 }
 
-type reducerState =
-  | { type: typeof REDUCER_ACTION_TYPE.CLICK_ENTER; value: string[][] }
-  | { type: typeof REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON }
-  | { type: typeof REDUCER_ACTION_TYPE.CLICK_LETTER; value: string }
+type GameReducerState =
   | { type: typeof REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS; value: string }
   | { type: typeof REDUCER_ACTION_TYPE.CHECK_COMPLETE; value: boolean }
-  | { type: typeof REDUCER_ACTION_TYPE.ADD_ROW_INDEX }
+  | { type: typeof REDUCER_ACTION_TYPE.NEXT_TURN }
   | { type: typeof REDUCER_ACTION_TYPE.RESET_GAME };
 
-const reducer = (prev: GameState, state: reducerState) => {
+const gameReducer = (prev: GameState, state: GameReducerState) => {
+  switch (state.type) {
+    case REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS:
+      return {
+        ...prev,
+        turn: prev.turn + 1,
+        gameStatus: state.value,
+        isGameComplete: state.value !== GAME_STATUS.DOING,
+      };
+    case REDUCER_ACTION_TYPE.NEXT_TURN:
+      return {
+        ...prev,
+      };
+    case REDUCER_ACTION_TYPE.RESET_GAME:
+      return getIntialGameState({ reset: true });
+    default:
+      return getIntialGameState({});
+  }
+};
+
+export interface InputState {
+  currentInput: string[];
+  columnIndex: number;
+}
+
+type InputReducerState =
+  | { type: typeof REDUCER_ACTION_TYPE.CLICK_ENTER; value: string[][] }
+  | { type: typeof REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON }
+  | { type: typeof REDUCER_ACTION_TYPE.CLICK_LETTER; value: string };
+
+const inputReducer = (prev: InputState, state: InputReducerState) => {
   switch (state.type) {
     case REDUCER_ACTION_TYPE.CLICK_ENTER:
       return {
-        ...prev,
         columnIndex: 0,
-        wordsEvaulated: state.value,
         currentInput: getInitialCurrentInput(),
-        words: prev.words.map((word, index) => {
-          if (index === prev.rowIndex) {
-            return prev.currentInput.join("");
-          }
-          return word;
-        }),
       };
     case REDUCER_ACTION_TYPE.CLICK_LETTER:
       return {
-        ...prev,
         columnIndex: Math.min(prev.columnIndex + 1, WORD_LENGTH),
         currentInput: replacePrevInputByColumnIndex({
           currentInput: prev.currentInput,
@@ -58,7 +74,6 @@ const reducer = (prev: GameState, state: reducerState) => {
       };
     case REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON:
       return {
-        ...prev,
         columnIndex: Math.max(prev.columnIndex - 1, 0),
         currentInput: replacePrevInputByColumnIndex({
           currentInput: prev.currentInput,
@@ -66,33 +81,28 @@ const reducer = (prev: GameState, state: reducerState) => {
           value: "",
         }),
       };
-    case REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS:
-      return {
-        ...prev,
-        rowIndex: prev.rowIndex + 1,
-        gameStatus: state.value,
-        isGameComplete: state.value !== GAME_STATUS.DOING,
-      };
-    case REDUCER_ACTION_TYPE.ADD_ROW_INDEX:
-      return {
-        ...prev,
-      };
-    case REDUCER_ACTION_TYPE.RESET_GAME:
-      return getIntialState({ reset: true });
-    default:
-      return getIntialState({});
   }
 };
 
+const getInitialInputState = (): Input => ({
+  currentInput: Array.from({ length: WORD_LENGTH }, () => ""),
+  columnIndex: 0,
+});
+
 const useGame = () => {
-  const [state, dispatch] = useReducer(reducer, getIntialState({}));
+  const [state, dispatch] = useReducer(gameReducer, getIntialGameState({}));
+  const [inputState, inputDispatch] = useReducer(
+    inputReducer,
+    getInitialInputState()
+  );
+
   useEffect(() => {
     window.localStorage.setItem(
       LOCAL_STORAGE_KEY_VALUE,
       JSON.stringify({
         words: state.words,
         answer: state.answer,
-        rowIndex: state.rowIndex,
+        turn: state.turn,
         gameStatus: state.gameStatus,
         isGameComplete: state.isGameComplete,
         wordsEvaulated: state.wordsEvaulated,
@@ -101,7 +111,7 @@ const useGame = () => {
   }, [
     state.words,
     state.answer,
-    state.rowIndex,
+    state.turn,
     state.gameStatus,
     state.wordsEvaulated,
     state.isGameComplete,
@@ -141,16 +151,16 @@ const useGame = () => {
 
       const updatedWordsEvaulated = updateWordsEvaulated({
         answer: state.answer,
-        rowIndex: state.rowIndex,
+        turn: state.turn,
         currentInput: state.currentInput,
         wordsEvaulated: state.wordsEvaulated,
       });
       const gameStatus = getGameStatus({
-        rowIndex: state.rowIndex,
+        turn: state.turn,
         wordsEvaulated: updatedWordsEvaulated,
       });
       const message = currentMessage({
-        rowIndex: state.rowIndex,
+        turn: state.turn,
         gameStatus: state.gameStatus,
         answer: state.answer,
       });
@@ -167,6 +177,8 @@ const useGame = () => {
       clickDeleteButton();
       return;
     }
+
+    if (/[^A-Za-z]|[A-Za-z]{2}/.test(buttonValue)) return;
 
     clickLetter(buttonValue);
     return;
@@ -215,13 +227,13 @@ const getInitialWordsEvaulated = () =>
 const getInitialCurrentInput = () =>
   Array.from({ length: WORD_LENGTH }, () => "");
 
-const getIntialState = ({ reset }: { reset?: true }): GameState => {
+const getIntialGameState = ({ reset }: { reset?: true }): GameState => {
   if (reset) removeValueFromLocalStorage();
 
   const {
     words = Array.from({ length: ROW_LENGTH }, () => ""),
     answer = getAnswer(),
-    rowIndex = 0,
+    turn = 0,
     gameStatus = GAME_STATUS.DOING,
     currentInput = getInitialCurrentInput(),
     isGameComplete = false,
@@ -230,7 +242,7 @@ const getIntialState = ({ reset }: { reset?: true }): GameState => {
   } = getValueFromLocalStorage(LOCAL_STORAGE_KEY_VALUE, [
     "words",
     "answer",
-    "rowIndex",
+    "turn",
     "gameStatus",
     "currentInput",
     "isGameComplete",
@@ -240,7 +252,7 @@ const getIntialState = ({ reset }: { reset?: true }): GameState => {
   return {
     words,
     answer,
-    rowIndex,
+    turn,
     gameStatus,
     columnIndex,
     currentInput,
