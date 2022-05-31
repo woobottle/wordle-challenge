@@ -10,24 +10,24 @@ import { getBackgroundColor, updateKeyMapper } from "../utils";
 
 interface Props {
   answer: string;
-  words: string[];
-  rowIndex: number;
+  guesses: string[];
+  turn: number;
   gameStatus: string;
-  wordsEvaulated: string[][];
+  guessEvaulations: string[][];
   handleKeyUp: ({ buttonValue }: { buttonValue: string }) => void;
 }
 const keyMapper = new Map<string, string>();
 
 const KeyBoard = ({
-  words,
+  guesses,
   gameStatus,
-  wordsEvaulated,
+  guessEvaulations,
   handleKeyUp,
 }: Props) => {
   const keyBoardMapper = useMemo(() => {
     keyMapper.clear();
-    return updateKeyMapper({ keyMapper, words, wordsEvaulated });
-  }, [words, wordsEvaulated]);
+    return updateKeyMapper({ keyMapper, guesses, guessEvaulations });
+  }, [guesses, guessEvaulations]);
 
   const clickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
     if (

@@ -23,53 +23,51 @@ export const getBackgroundColor = ({
   return "#538d4e";
 };
 
-export const updateWordsEvaulated = ({
-  answer,
-  rowIndex,
-  currentInput,
-  wordsEvaulated,
-}: Pick<
-  GameState,
-  "currentInput" | "wordsEvaulated" | "rowIndex" | "answer"
->) =>
-  wordsEvaulated.map((wordEvaluated, index) => {
-    if (index === rowIndex) {
-      return currentInput.map((val, index) => {
-        const isValueInAnswer = answer.indexOf(val) === -1;
-        if (isValueInAnswer) {
-          return BOARD_INPUT_STATUS.ABSENT;
-        }
+export const updateGuessEvaulations =
+  (currentInput: string[]) =>
+  ({
+    answer,
+    turn,
+    guessEvaulations,
+  }: Pick<GameState, "guessEvaulations" | "turn" | "answer">) =>
+    guessEvaulations.map((guessEvaluation, index) => {
+      if (index === turn) {
+        return currentInput.map((val, index) => {
+          const isValueInAnswer = answer.indexOf(val) === -1;
+          if (isValueInAnswer) {
+            return BOARD_INPUT_STATUS.ABSENT;
+          }
 
-        if (answer[index] === val) {
-          return BOARD_INPUT_STATUS.CORRECT;
-        }
+          if (answer[index] === val) {
+            return BOARD_INPUT_STATUS.CORRECT;
+          }
 
-        return BOARD_INPUT_STATUS.MISMATCH;
-      });
-    }
-    return wordEvaluated;
-  });
+          return BOARD_INPUT_STATUS.MISMATCH;
+        });
+      }
+      return guessEvaluation;
+    });
 
 export const getGameStatus = ({
-  rowIndex,
-  wordsEvaulated,
-}: Pick<GameState, "wordsEvaulated" | "rowIndex">): string => {
-  const isComplete = wordsEvaulated[rowIndex].every(
+  turn,
+  guessEvaulations,
+}: Pick<GameState, "guessEvaulations" | "turn">): string => {
+  const isComplete = guessEvaulations[turn].every(
     (el) => el === BOARD_INPUT_STATUS.CORRECT
   );
   if (isComplete) return GAME_STATUS.COMPLETE;
 
-  const isFail = rowIndex === ROW_LENGTH;
+  const isFail = turn === ROW_LENGTH;
   if (isFail) return GAME_STATUS.FAIL;
 
   return GAME_STATUS.DOING;
 };
 
 export const currentMessage = ({
-  rowIndex,
+  turn,
   gameStatus,
   answer,
-}: Pick<GameState, "rowIndex" | "gameStatus" | "answer">) => {
+}: Pick<GameState, "turn" | "gameStatus" | "answer">) => {
   if (gameStatus === GAME_STATUS.FAIL) {
     return answer;
   }
@@ -83,22 +81,23 @@ export const currentMessage = ({
     5: REACTIONS.PHEW,
   };
 
-  return messageTable[rowIndex];
+  return messageTable[turn];
 };
 
 export const updateKeyMapper = ({
-  words,
+  guesses,
   keyMapper,
-  wordsEvaulated,
+  guessEvaulations,
 }: {
+  guesses: string[];
   keyMapper: Map<string, string>;
-  words: string[];
-  wordsEvaulated: string[][];
+  guessEvaulations: string[][];
 }) => {
-  const flattenWords = words.join("").split("");
+  const flattenWords = guesses.join("").split("");
   flattenWords.forEach((char, index) => {
     if (char === "") return;
-    const value = wordsEvaulated[~~(index / WORD_LENGTH)][index % WORD_LENGTH];
+    const value =
+      guessEvaulations[~~(index / WORD_LENGTH)][index % WORD_LENGTH];
     if (!keyMapper.has(char)) {
       keyMapper.set(char, value);
     }

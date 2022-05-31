@@ -5,41 +5,46 @@ import {
   WORDS,
   WORD_LENGTH,
   ROW_LENGTH,
-  REDUCER_ACTION_TYPE,
+  GAME_REDUCER_ACTION_TYPE,
+  INPUT_REDUCER_ACTION_TYPE,
   LOCAL_STORAGE_KEY_VALUE,
   MESSAGE,
 } from "../constants";
-import { currentMessage, getGameStatus, updateWordsEvaulated } from "../utils";
+import {
+  currentMessage,
+  getGameStatus,
+  updateGuessEvaulations,
+} from "../utils";
 
 export interface GameState {
   answer: string;
   turn: number;
-  words: string[];
+  guesses: string[];
   gameStatus: string;
   isGameComplete: boolean;
-  wordsEvaulated: string[][];
+  guessEvaulations: string[][];
 }
 
 type GameReducerState =
-  | { type: typeof REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS; value: string }
-  | { type: typeof REDUCER_ACTION_TYPE.CHECK_COMPLETE; value: boolean }
-  | { type: typeof REDUCER_ACTION_TYPE.NEXT_TURN }
-  | { type: typeof REDUCER_ACTION_TYPE.RESET_GAME };
+  | { type: typeof GAME_REDUCER_ACTION_TYPE.ADD_GUESS; value: string }
+  | { type: typeof GAME_REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS; value: string }
+  | { type: typeof GAME_REDUCER_ACTION_TYPE.NEXT_TURN }
+  | { type: typeof GAME_REDUCER_ACTION_TYPE.RESET_GAME };
 
 const gameReducer = (prev: GameState, state: GameReducerState) => {
   switch (state.type) {
-    case REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS:
+    case GAME_REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS:
       return {
         ...prev,
         turn: prev.turn + 1,
         gameStatus: state.value,
         isGameComplete: state.value !== GAME_STATUS.DOING,
       };
-    case REDUCER_ACTION_TYPE.NEXT_TURN:
+    case GAME_REDUCER_ACTION_TYPE.NEXT_TURN:
       return {
         ...prev,
       };
-    case REDUCER_ACTION_TYPE.RESET_GAME:
+    case GAME_REDUCER_ACTION_TYPE.RESET_GAME:
       return getIntialGameState({ reset: true });
     default:
       return getIntialGameState({});
@@ -52,18 +57,18 @@ export interface InputState {
 }
 
 type InputReducerState =
-  | { type: typeof REDUCER_ACTION_TYPE.CLICK_ENTER; value: string[][] }
-  | { type: typeof REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON }
-  | { type: typeof REDUCER_ACTION_TYPE.CLICK_LETTER; value: string };
+  | { type: typeof INPUT_REDUCER_ACTION_TYPE.CLICK_ENTER; value: string[][] }
+  | { type: typeof INPUT_REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON }
+  | { type: typeof INPUT_REDUCER_ACTION_TYPE.CLICK_LETTER; value: string };
 
 const inputReducer = (prev: InputState, state: InputReducerState) => {
   switch (state.type) {
-    case REDUCER_ACTION_TYPE.CLICK_ENTER:
+    case INPUT_REDUCER_ACTION_TYPE.CLICK_ENTER:
       return {
         columnIndex: 0,
         currentInput: getInitialCurrentInput(),
       };
-    case REDUCER_ACTION_TYPE.CLICK_LETTER:
+    case INPUT_REDUCER_ACTION_TYPE.CLICK_LETTER:
       return {
         columnIndex: Math.min(prev.columnIndex + 1, WORD_LENGTH),
         currentInput: replacePrevInputByColumnIndex({
@@ -72,7 +77,7 @@ const inputReducer = (prev: InputState, state: InputReducerState) => {
           value: state.value,
         }),
       };
-    case REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON:
+    case INPUT_REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON:
       return {
         columnIndex: Math.max(prev.columnIndex - 1, 0),
         currentInput: replacePrevInputByColumnIndex({
@@ -84,13 +89,11 @@ const inputReducer = (prev: InputState, state: InputReducerState) => {
   }
 };
 
-const getInitialInputState = (): Input => ({
-  currentInput: Array.from({ length: WORD_LENGTH }, () => ""),
-  columnIndex: 0,
-});
-
 const useGame = () => {
-  const [state, dispatch] = useReducer(gameReducer, getIntialGameState({}));
+  const [gameState, gameDispatch] = useReducer(
+    gameReducer,
+    getIntialGameState({})
+  );
   const [inputState, inputDispatch] = useReducer(
     inputReducer,
     getInitialInputState()
@@ -100,45 +103,54 @@ const useGame = () => {
     window.localStorage.setItem(
       LOCAL_STORAGE_KEY_VALUE,
       JSON.stringify({
-        words: state.words,
-        answer: state.answer,
-        turn: state.turn,
-        gameStatus: state.gameStatus,
-        isGameComplete: state.isGameComplete,
-        wordsEvaulated: state.wordsEvaulated,
+        guesses: gameState.guesses,
+        answer: gameState.answer,
+        turn: gameState.turn,
+        gameStatus: gameState.gameStatus,
+        isGameComplete: gameState.isGameComplete,
+        guessEvaulations: gameState.guessEvaulations,
       })
     );
   }, [
-    state.words,
-    state.answer,
-    state.turn,
-    state.gameStatus,
-    state.wordsEvaulated,
-    state.isGameComplete,
+    gameState.guesses,
+    gameState.answer,
+    gameState.turn,
+    gameState.gameStatus,
+    gameState.guessEvaulations,
+    gameState.isGameComplete,
   ]);
 
-  const clickEnter = ({ wordsEvaulated }: Pick<GameState, "wordsEvaulated">) =>
-    dispatch({ type: REDUCER_ACTION_TYPE.CLICK_ENTER, value: wordsEvaulated });
+  const clickEnter = ({
+    guessEvaulations,
+  }: Pick<GameState, "guessEvaulations">) =>
+    inputDispatch({
+      type: INPUT_REDUCER_ACTION_TYPE.CLICK_ENTER,
+      value: guessEvaulations,
+    });
 
   const clickDeleteButton = () =>
-    dispatch({ type: REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON });
+    inputDispatch({ type: INPUT_REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON });
 
   const clickLetter = (word: string) => {
-    dispatch({ type: REDUCER_ACTION_TYPE.CLICK_LETTER, value: word });
+    inputDispatch({
+      type: INPUT_REDUCER_ACTION_TYPE.CLICK_LETTER,
+      value: word,
+    });
   };
 
   const updateGameStatus = ({ gameStatus }: Pick<GameState, "gameStatus">) => {
-    dispatch({
-      type: REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS,
+    gameDispatch({
+      type: GAME_REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS,
       value: gameStatus,
     });
   };
 
-  const resetGame = () => dispatch({ type: REDUCER_ACTION_TYPE.RESET_GAME });
+  const resetGame = () =>
+    gameDispatch({ type: GAME_REDUCER_ACTION_TYPE.RESET_GAME });
 
   const handleKeyUp = ({ buttonValue }: { buttonValue: string }) => {
     if (buttonValue === "enter" || buttonValue === "Enter") {
-      const word = state.currentInput.join("");
+      const word = inputState.currentInput.join("");
       if (!isValidLength(word, WORD_LENGTH)) {
         // addMessage({ id: Date.now(), message: MESSAGE.WRONG_LENGTH });
         return;
@@ -149,23 +161,26 @@ const useGame = () => {
         return;
       }
 
-      const updatedWordsEvaulated = updateWordsEvaulated({
-        answer: state.answer,
-        turn: state.turn,
-        currentInput: state.currentInput,
-        wordsEvaulated: state.wordsEvaulated,
-      });
-      const gameStatus = getGameStatus({
-        turn: state.turn,
-        wordsEvaulated: updatedWordsEvaulated,
-      });
-      const message = currentMessage({
-        turn: state.turn,
-        gameStatus: state.gameStatus,
-        answer: state.answer,
+      const updatedWordsEvaulated = updateGuessEvaulations(
+        inputState.currentInput
+      )({
+        answer: gameState.answer,
+        turn: gameState.turn,
+        guessEvaulations: gameState.guessEvaulations,
       });
 
-      clickEnter({ wordsEvaulated: updatedWordsEvaulated });
+      const gameStatus = getGameStatus({
+        turn: gameState.turn,
+        guessEvaulations: updatedWordsEvaulated,
+      });
+
+      const message = currentMessage({
+        turn: gameState.turn,
+        gameStatus: gameState.gameStatus,
+        answer: gameState.answer,
+      });
+
+      clickEnter({ guessEvaulations: updatedWordsEvaulated });
       updateGameStatus({ gameStatus });
       if (gameStatus !== GAME_STATUS.DOING) {
         // addMessage({ id: Date.now(), message });
@@ -185,7 +200,10 @@ const useGame = () => {
   };
 
   return {
-    state,
+    state: {
+      ...gameState,
+      ...inputState,
+    },
     actions: {
       resetGame,
       handleKeyUp,
@@ -219,7 +237,7 @@ const removeValueFromLocalStorage = () => {
   window.localStorage.removeItem(LOCAL_STORAGE_KEY_VALUE);
 };
 
-const getInitialWordsEvaulated = () =>
+const getInitialGuessesEvaulated = () =>
   Array.from({ length: ROW_LENGTH }, () =>
     Array.from({ length: WORD_LENGTH }, () => BOARD_INPUT_STATUS.YET)
   );
@@ -227,20 +245,23 @@ const getInitialWordsEvaulated = () =>
 const getInitialCurrentInput = () =>
   Array.from({ length: WORD_LENGTH }, () => "");
 
+const getInitialInputState = (): InputState => ({
+  currentInput: Array.from({ length: WORD_LENGTH }, () => ""),
+  columnIndex: 0,
+});
+
 const getIntialGameState = ({ reset }: { reset?: true }): GameState => {
   if (reset) removeValueFromLocalStorage();
 
   const {
-    words = Array.from({ length: ROW_LENGTH }, () => ""),
+    guesses = Array.from({ length: ROW_LENGTH }, () => ""),
     answer = getAnswer(),
     turn = 0,
     gameStatus = GAME_STATUS.DOING,
-    currentInput = getInitialCurrentInput(),
     isGameComplete = false,
-    wordsEvaulated = getInitialWordsEvaulated(),
-    columnIndex = 0,
+    guessEvaulations = getInitialGuessesEvaulated(),
   } = getValueFromLocalStorage(LOCAL_STORAGE_KEY_VALUE, [
-    "words",
+    "guesses",
     "answer",
     "turn",
     "gameStatus",
@@ -250,14 +271,12 @@ const getIntialGameState = ({ reset }: { reset?: true }): GameState => {
   ]);
 
   return {
-    words,
+    guesses,
     answer,
     turn,
     gameStatus,
-    columnIndex,
-    currentInput,
     isGameComplete,
-    wordsEvaulated,
+    guessEvaulations,
   };
 };
 
@@ -265,7 +284,7 @@ const replacePrevInputByColumnIndex = ({
   currentInput,
   columnIndex,
   value,
-}: Pick<GameState, "currentInput" | "columnIndex"> & { value: string }) =>
+}: Pick<InputState, "currentInput" | "columnIndex"> & { value: string }) =>
   currentInput.map((el, index) => {
     if (index === columnIndex) {
       return value;

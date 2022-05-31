@@ -2,25 +2,25 @@ import styled from "styled-components";
 import GameRow from "./GameRow";
 
 interface Props {
-  words: string[];
-  rowIndex: number;
+  guesses: string[];
+  turn: number;
   currentInput: string[];
-  wordsEvaulated: Array<string[]>;
+  guessEvaulations: Array<string[]>;
 }
 
 const GameBoard = ({
-  words,
-  rowIndex,
+  guesses,
+  turn,
   currentInput,
-  wordsEvaulated,
+  guessEvaulations,
 }: Props) => {
   return (
     <GameBoardWrapper>
-      {words.map((word, wordIndex) => {
+      {guesses.map((guess, wordIndex) => {
         return (
           <GameRow
-            contents={wordIndex === rowIndex ? currentInput : word.split("")}
-            contentsValidate={wordsEvaulated[wordIndex]}
+            contents={wordIndex === turn ? currentInput : guess.split("")}
+            contentsValidate={guessEvaulations[wordIndex]}
           />
         );
       })}
