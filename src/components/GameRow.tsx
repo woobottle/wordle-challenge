@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import { WORD_LENGTH } from "../constants";
 import { getBackgroundColor } from "../utils";
 
@@ -8,6 +8,7 @@ interface Props {
 }
 
 const GameRow = ({ contents, contentsValidate }: Props) => {
+  console.log(contents);
   return (
     <Row>
       {contents.length !== 0

@@ -9,6 +9,7 @@ export const GAME_STATUS = {
 
 export const GAME_REDUCER_ACTION_TYPE = {
   UPDATE_GAME_STATUS: "updateGameStatus",
+  ADD_GUESS_EVALUATIONS: "addGuessEvaluations",
   RESET_GAME: "resetGame",
   ADD_GUESS: "addGuess",
   NEXT_TURN: "nextTurn",
@@ -17,7 +18,7 @@ export const GAME_REDUCER_ACTION_TYPE = {
 export const INPUT_REDUCER_ACTION_TYPE = {
   CLICK_DELTE_BUTTON: "clickDeleteButton",
   CLICK_LETTER: "clickLetter",
-  CLICK_ENTER: "clickEnter",
+  RESET_INPUT: "resetInput",
 } as const;
 
 export const BOARD_INPUT_STATUS = {

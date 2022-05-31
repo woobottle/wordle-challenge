@@ -14,6 +14,7 @@ const GameBoard = ({
   currentInput,
   guessEvaulations,
 }: Props) => {
+  console.log(guesses);
   return (
     <GameBoardWrapper>
       {guesses.map((guess, wordIndex) => {
