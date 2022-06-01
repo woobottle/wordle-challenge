@@ -9,9 +9,7 @@ import {
 import { getBackgroundColor, updateKeyMapper } from "../utils";
 
 interface Props {
-  answer: string;
   guesses: string[];
-  turn: number;
   gameStatus: string;
   guessEvaulations: string[][];
   handleKeyUp: ({ buttonValue }: { buttonValue: string }) => void;
