@@ -1,20 +1,14 @@
+import { GAME_STATUS } from "./../constants/index";
 import { useEffect, useReducer } from "react";
 import {
-  GAME_STATUS,
   BOARD_INPUT_STATUS,
   WORDS,
   WORD_LENGTH,
   ROW_LENGTH,
   GAME_REDUCER_ACTION_TYPE,
-  INPUT_REDUCER_ACTION_TYPE,
   LOCAL_STORAGE_KEY_VALUE,
   MESSAGE,
 } from "../constants";
-import {
-  currentMessage,
-  getGameStatus,
-  updateGuessEvaulations,
-} from "../utils";
 
 export interface GameState {
   answer: string;
@@ -65,65 +59,11 @@ const gameReducer = (prev: GameState, state: GameReducerState) => {
   }
 };
 
-export interface InputState {
-  currentInput: string[];
-  columnIndex: number;
-}
-
-type InputReducerState =
-  | { type: typeof INPUT_REDUCER_ACTION_TYPE.RESET_INPUT }
-  | { type: typeof INPUT_REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON }
-  | { type: typeof INPUT_REDUCER_ACTION_TYPE.CLICK_LETTER; value: string };
-
-const inputReducer = (prev: InputState, state: InputReducerState) => {
-  switch (state.type) {
-    case INPUT_REDUCER_ACTION_TYPE.RESET_INPUT:
-      return {
-        ...getInitialInputState(),
-      };
-    case INPUT_REDUCER_ACTION_TYPE.CLICK_LETTER:
-      return {
-        columnIndex: Math.min(prev.columnIndex + 1, WORD_LENGTH),
-        currentInput: replacePrevInputByColumnIndex({
-          currentInput: prev.currentInput,
-          columnIndex: prev.columnIndex,
-          value: state.value,
-        }),
-      };
-    case INPUT_REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON:
-      return {
-        columnIndex: Math.max(prev.columnIndex - 1, 0),
-        currentInput: replacePrevInputByColumnIndex({
-          currentInput: prev.currentInput,
-          columnIndex: prev.columnIndex - 1,
-          value: "",
-        }),
-      };
-  }
-};
-
 const useGame = () => {
   const [gameState, gameDispatch] = useReducer(
     gameReducer,
     getIntialGameState({ reset: false })
   );
-  const [inputState, inputDispatch] = useReducer(
-    inputReducer,
-    getInitialInputState()
-  );
-
-  const resetCurrentInput = () =>
-    inputDispatch({ type: INPUT_REDUCER_ACTION_TYPE.RESET_INPUT });
-
-  const clickDeleteButton = () =>
-    inputDispatch({ type: INPUT_REDUCER_ACTION_TYPE.CLICK_DELTE_BUTTON });
-
-  const clickLetter = (word: string) => {
-    inputDispatch({
-      type: INPUT_REDUCER_ACTION_TYPE.CLICK_LETTER,
-      value: word,
-    });
-  };
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -160,10 +100,10 @@ const useGame = () => {
       value: guessEvaulations,
     });
 
-  const addNewGuess = (guess: string) => {
+  const addNewGuess = ({ newGuess }: { newGuess: string }) => {
     const { guesses, turn } = gameState;
     const newGuesses = [...guesses];
-    newGuesses[turn] = guess;
+    newGuesses[turn] = newGuess;
 
     gameDispatch({
       type: GAME_REDUCER_ACTION_TYPE.ADD_GUESS,
@@ -171,7 +111,7 @@ const useGame = () => {
     });
   };
 
-  const updateGameStatus = ({ gameStatus }: Pick<GameState, "gameStatus">) => {
+  const setGameStatus = ({ gameStatus }: Pick<GameState, "gameStatus">) => {
     gameDispatch({
       type: GAME_REDUCER_ACTION_TYPE.UPDATE_GAME_STATUS,
       value: gameStatus,
@@ -181,80 +121,27 @@ const useGame = () => {
   const resetGame = () =>
     gameDispatch({ type: GAME_REDUCER_ACTION_TYPE.RESET_GAME });
 
-  const handleKeyUp = ({ buttonValue }: { buttonValue: string }) => {
-    if (buttonValue === "enter" || buttonValue === "Enter") {
-      const word = inputState.currentInput.join("");
-      if (!isValidLength(word, WORD_LENGTH)) {
-        // addMessage({ id: Date.now(), message: MESSAGE.WRONG_LENGTH });
-        return;
-      }
-
-      if (!isWordInList(word, WORDS)) {
-        // addMessage({ id: Date.now(), message: MESSAGE.WRONG_ANSWER });
-        return;
-      }
-
-      const updatedGuessesEvaulated = updateGuessEvaulations(
-        inputState.currentInput
-      )({
-        answer: gameState.answer,
-        turn: gameState.turn,
-        guessEvaulations: gameState.guessEvaulations,
-      });
-
-      const gameStatus = getGameStatus({
-        turn: gameState.turn,
-        guessEvaulations: updatedGuessesEvaulated,
-      });
-
-      const message = currentMessage({
-        turn: gameState.turn,
-        gameStatus: gameState.gameStatus,
-        answer: gameState.answer,
-      });
-      console.log(updatedGuessesEvaulated);
-      resetCurrentInput();
-      nextTurn();
-      addGuessEvaulations({ guessEvaulations: updatedGuessesEvaulated });
-      addNewGuess(inputState.currentInput.join(""));
-      updateGameStatus({ gameStatus });
-      if (gameStatus !== GAME_STATUS.DOING) {
-        // addMessage({ id: Date.now(), message });
-      }
-      return;
-    }
-
-    if (buttonValue === "<" || buttonValue === "Backspace") {
-      clickDeleteButton();
-      return;
-    }
-
-    if (/[^A-Za-z]|[A-Za-z]{2}/.test(buttonValue)) return;
-
-    clickLetter(buttonValue);
-    return;
+  const updateGameStatus = ({
+    guessEvaulations,
+    newGuess,
+    gameStatus,
+  }:
+    | Pick<GameState, "guessEvaulations" | "gameStatus"> & {
+        newGuess: string;
+      }) => {
+    nextTurn();
+    addGuessEvaulations({ guessEvaulations });
+    addNewGuess({ newGuess });
+    setGameStatus({ gameStatus });
   };
 
   return {
-    state: {
-      ...gameState,
-      ...inputState,
-    },
+    state: gameState,
     actions: {
       resetGame,
-      handleKeyUp,
       updateGameStatus,
     },
   };
-};
-
-const isWordInList = (word: string, words: string[]) => {
-  if (words.includes(word)) return true;
-  return false;
-};
-const isValidLength = (word: string, wordLength: number) => {
-  if (word.length !== wordLength) return false;
-  return true;
 };
 
 const getAnswer = () => WORDS[~~(Math.random() * WORDS.length)];
@@ -277,11 +164,6 @@ const getInitialGuessesEvaulated = () =>
   Array.from({ length: ROW_LENGTH }, () =>
     Array.from({ length: WORD_LENGTH }, () => BOARD_INPUT_STATUS.YET)
   );
-
-const getInitialInputState = (): InputState => ({
-  currentInput: Array.from({ length: WORD_LENGTH }, () => ""),
-  columnIndex: 0,
-});
 
 const getIntialGameState = ({
   reset = true,
@@ -316,17 +198,5 @@ const getIntialGameState = ({
     guessEvaulations,
   };
 };
-
-const replacePrevInputByColumnIndex = ({
-  value,
-  columnIndex,
-  currentInput,
-}: Pick<InputState, "currentInput" | "columnIndex"> & { value: string }) =>
-  currentInput.map((el, index) => {
-    if (index === columnIndex) {
-      return value;
-    }
-    return el;
-  });
 
 export default useGame;

@@ -50,9 +50,11 @@ export const updateGuessEvaulations =
 
 export const getGameStatus = ({
   turn,
-  guessEvaulations,
-}: Pick<GameState, "guessEvaulations" | "turn">): string => {
-  const isComplete = guessEvaulations[turn].every(
+  updatedGuessesEvaulated,
+}: Pick<GameState, "turn"> & {
+  updatedGuessesEvaulated: string[][];
+}): string => {
+  const isComplete = updatedGuessesEvaulated[turn].every(
     (el) => el === BOARD_INPUT_STATUS.CORRECT
   );
   if (isComplete) return GAME_STATUS.COMPLETE;
@@ -63,7 +65,7 @@ export const getGameStatus = ({
   return GAME_STATUS.DOING;
 };
 
-export const currentMessage = ({
+export const getMessage = ({
   turn,
   gameStatus,
   answer,
@@ -107,4 +109,13 @@ export const updateKeyMapper = ({
   });
 
   return keyMapper;
+};
+
+export const isWordInList = (word: string, words: string[]) => {
+  if (words.includes(word)) return true;
+  return false;
+};
+export const isValidLength = (word: string, wordLength: number) => {
+  if (word.length !== wordLength) return false;
+  return true;
 };
