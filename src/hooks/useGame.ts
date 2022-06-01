@@ -105,7 +105,7 @@ const inputReducer = (prev: InputState, state: InputReducerState) => {
 const useGame = () => {
   const [gameState, gameDispatch] = useReducer(
     gameReducer,
-    getIntialGameState({})
+    getIntialGameState({ reset: false })
   );
   const [inputState, inputDispatch] = useReducer(
     inputReducer,
@@ -283,7 +283,11 @@ const getInitialInputState = (): InputState => ({
   columnIndex: 0,
 });
 
-const getIntialGameState = ({ reset }: { reset?: true }): GameState => {
+const getIntialGameState = ({
+  reset = true,
+}: {
+  reset?: boolean;
+}): GameState => {
   if (reset) removeValueFromLocalStorage();
 
   const {

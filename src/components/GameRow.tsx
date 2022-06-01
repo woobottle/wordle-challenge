@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { WORD_LENGTH } from "../constants";
 import { getBackgroundColor } from "../utils";
 
@@ -8,7 +8,6 @@ interface Props {
 }
 
 const GameRow = ({ contents, contentsValidate }: Props) => {
-  console.log(contents);
   return (
     <Row>
       {contents.length !== 0
@@ -51,37 +50,43 @@ const Column = styled.div<{
   border: 0.1rem solid black;
   --background-color: ${({ status }) => getBackgroundColor({ status })};
 
-  @keyframes rotateColumn {
-    0% {
-      -webkit-transform: rotateX(0);
-    }
-    50% {
-      -webkit-transform: rotateX(-90deg);
-    }
-    100% {
-      -webkit-transform: rotateX(0);
-      background-color: var(--background-color);
-    }
-  }
-
   animation: ${({ status, columnIndex = 0 }) => {
     return status && status !== "yet"
-      ? `rotateColumn 1s ease-in ${columnIndex * 0.2}s forwards`
+      ? css`
+          ${rotateColumn} 1s ease-in ${columnIndex * 0.2}s forwards
+        `
       : "";
   }};
 
-  @keyframes bounce {
-    50% {
-      -webkit-transform: scale(1.2);
-    }
-    100% {
-      -webkit-transform: scale(1);
-    }
-  }
-
   animation: ${({ animated, status }) => {
-    return animated && status === "yet" ? "bounce 0.5s;" : "";
+    return animated && status === "yet"
+      ? css`
+          ${bounce} 0.5s;
+        `
+      : "";
   }};
+`;
+
+const rotateColumn = keyframes`
+  0% {
+    transform: rotateX(0);
+  }
+  50% {
+    transform: rotateX(-90deg);
+  }
+  100% {
+    transform: rotateX(0);
+    background-color: var(--background-color);
+  }  
+`;
+
+const bounce = keyframes`
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 `;
 
 export default GameRow;
