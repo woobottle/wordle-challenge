@@ -9,28 +9,25 @@ import {
   ResultModal,
   ResultModalPortal,
 } from "./components";
-import { darkTheme, lightTheme } from "./assets/styles/theme";
 import GlobalStyles from "./assets/styles/GlobalStyles";
 import useGame from "./hooks/useGame";
 import useModalMessage from "./hooks/useModalMessage";
 
 function App() {
-  const [theme, setTheme] = useState("dark");
-  const currentTheme = useMemo(
-    () => (theme === "light" ? lightTheme : darkTheme),
-    [theme]
-  );
-
-  const { state, actions: keyBoardActions } = useGame();
+  const { state: gameState, actions: gameActions } = useGame();
   const { modalMessages, addMessage, removeMessage } = useModalMessage();
-
+  // 검증함수를 App에서 정의, modal이 껴있음
+  // keyboard로 전달후 고차함수
+  // 커스텀 훅에서는 재료만 전달해서 최대한 재사용성을 확보하고
+  // 사용처에서는 여러 재료들을 조합, 원하는 동작을 만들어보자
+  // wordsEvaulated를 가지고 있어야 할까? 매번 계산하면 안될까?
   const isResultModalOpen = useMemo(() => {
-    const isOpen = modalMessages.length === 0 && state.isGameComplete;
+    const isOpen = modalMessages.length === 0 && gameState.isGameComplete;
     return isOpen;
-  }, [state.isGameComplete, modalMessages]);
+  }, [gameState.isGameComplete, modalMessages]);
 
   return (
-    <ThemeProvider theme={{ currentTheme, setTheme }}>
+    <ThemeProvider theme={{}}>
       <GlobalStyles />
       <NavModalPortal>
         {modalMessages.reverse().map((message) => (
@@ -42,14 +39,14 @@ function App() {
         ))}
       </NavModalPortal>
       <div className="App">
-        <GameBoard {...state} />
-        <KeyBoard {...state} {...keyBoardActions} addMessage={addMessage} />
+        <GameBoard {...gameState} />
+        <KeyBoard {...gameState} {...gameActions} />
       </div>
       <ResultModalPortal>
         {isResultModalOpen && (
           <ResultModal
-            {...state}
-            callback={() => keyBoardActions.resetGame()}
+            {...gameState}
+            callback={() => gameActions.resetGame()}
           />
         )}
       </ResultModalPortal>

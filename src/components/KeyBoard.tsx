@@ -1,65 +1,33 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import {
-  WORDS,
-  WORD_LENGTH,
   GAME_STATUS,
   firstLineOfKeyboard,
   secondLineOfKeyboard,
   thirdLineOfKeyboard,
-  MESSAGE,
 } from "../constants";
-import { GameState } from "../hooks/useGame";
-import { ModalMessage } from "../hooks/useModalMessage";
-import {
-  currentMessage,
-  getBackgroundColor,
-  getGameStatus,
-  updateKeyMapper,
-  updateWordsEvaulated,
-} from "../utils";
+import { getBackgroundColor, updateKeyMapper } from "../utils";
 
 interface Props {
   answer: string;
-  words: string[];
-  rowIndex: number;
+  guesses: string[];
+  turn: number;
   gameStatus: string;
-  currentInput: string[];
-  wordsEvaulated: string[][];
-  clickEnter: ({ wordsEvaulated }: Pick<GameState, "wordsEvaulated">) => void;
-  clickLetter: (word: string) => void;
-  updateGameStatus: ({ gameStatus }: Pick<GameState, "gameStatus">) => void;
-  clickDeleteButton: () => void;
-  addMessage: (message: ModalMessage) => void;
+  guessEvaulations: string[][];
+  handleKeyUp: ({ buttonValue }: { buttonValue: string }) => void;
 }
+const keyMapper = new Map<string, string>();
 
 const KeyBoard = ({
-  words,
-  answer,
-  rowIndex,
+  guesses,
   gameStatus,
-  currentInput,
-  wordsEvaulated,
-  clickEnter,
-  clickLetter,
-  updateGameStatus,
-  clickDeleteButton,
-  addMessage,
+  guessEvaulations,
+  handleKeyUp,
 }: Props) => {
-  const keyMapper = new Map<string, string>();
-  const keyBoardMapper = useMemo(
-    () => updateKeyMapper({ keyMapper, words, wordsEvaulated }),
-    [words, wordsEvaulated]
-  );
-
-  const isWordInList = (word: string, words: string[]) => {
-    if (words.includes(word)) return true;
-    return false;
-  };
-  const isValidLength = (word: string, wordLength: number) => {
-    if (word.length !== wordLength) return false;
-    return true;
-  };
+  const keyBoardMapper = useMemo(() => {
+    keyMapper.clear();
+    return updateKeyMapper({ keyMapper, guesses, guessEvaulations });
+  }, [guesses, guessEvaulations]);
 
   const clickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
@@ -68,54 +36,19 @@ const KeyBoard = ({
     ) {
       return;
     }
-
     const buttonValue = e.target.dataset["key"];
     if (!buttonValue) return;
 
-    if (buttonValue === "enter") {
-      const word = currentInput.join("");
-      if (!isValidLength(word, WORD_LENGTH)) {
-        addMessage({ id: Date.now(), message: MESSAGE.WRONG_LENGTH });
-        return;
-      }
-
-      if (!isWordInList(word, WORDS)) {
-        addMessage({ id: Date.now(), message: MESSAGE.WRONG_ANSWER });
-        return;
-      }
-
-      const updatedWordsEvaulated = updateWordsEvaulated({
-        answer,
-        rowIndex,
-        currentInput,
-        wordsEvaulated,
-      });
-      const gameStatus = getGameStatus({
-        rowIndex,
-        wordsEvaulated: updatedWordsEvaulated,
-      });
-      const message = currentMessage({
-        rowIndex,
-        gameStatus,
-        answer,
-      });
-
-      clickEnter({ wordsEvaulated: updatedWordsEvaulated });
-      updateGameStatus({ gameStatus });
-      if (gameStatus !== GAME_STATUS.DOING) {
-        addMessage({ id: Date.now(), message });
-      }
-      return;
-    }
-
-    if (buttonValue === "<") {
-      clickDeleteButton();
-      return;
-    }
-
-    clickLetter(buttonValue);
-    return;
+    handleKeyUp({ buttonValue });
   };
+
+  useEffect(() => {
+    const keyUpEvent = (event: KeyboardEvent) =>
+      handleKeyUp({ buttonValue: event.key });
+
+    addEventListener("keyup", keyUpEvent);
+    return () => removeEventListener("keyup", keyUpEvent);
+  }, [handleKeyUp]);
 
   return (
     <KeyBoardWrapper onClick={clickHandler}>
